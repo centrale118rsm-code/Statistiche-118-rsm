@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistiche Trasporti 118</title>
+<meta name="description" content="Dashboard dei conteggi dei trasporti 118 ISS San Marino, calcolata dal file Excel dei trasporti.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --page:#eef2f6; --card:#ffffff; --card2:#f5f7fa; --ink:#14202b; --ink2:#4c5a68; --muted:#7b8794;
+  --grid:#e5e9ef; --axis:#c9d0d8; --line:#dde3ea; --border:rgba(20,32,43,.09);
+  --side:#0f2a44; --side2:#163654; --side-ink:#dbe5ef; --side-muted:#8ea3b8; --side-on:#ffffff;
+  --accent:#1c5cab; --accent-ink:#fff; --accent-soft:#e2ecf9;
+  --brand:#d32f2f; --good:#13803a; --bad:#c0392b;
+  --c-rosso:#d03b3b; --c-blu:#2a78d6; --c-giallo:#e8a100; --c-verde:#2e9e44; --c-bianco:#b9bec5;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948;
+  --h0:#f2f6fb; --h1:#d6e6fa; --h2:#a9cbf3; --h3:#76abeb; --h4:#3f8ae0; --h5:#256abf; --h6:#174a8c;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#0d1620; --card:#152230; --card2:#1a2a3a; --ink:#e9eef3; --ink2:#b5c1cd; --muted:#82919f;
+    --grid:#223344; --axis:#30455a; --line:#253749; --border:rgba(255,255,255,.08);
+    --side:#0a1520; --side2:#132332; --side-ink:#c9d6e2; --side-muted:#7d91a5; --side-on:#ffffff;
+    --accent:#5598e7; --accent-ink:#06121e; --accent-soft:#1b3350;
+    --brand:#e5484d; --good:#3fbf62; --bad:#f07167;
+    --c-rosso:#e66767; --c-blu:#3f8ae0; --c-giallo:#d39a12; --c-verde:#36b04f; --c-bianco:#cfd5dc;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#2c9a2c; --s7:#9085e9; --s8:#e66767;
+    --h0:#16222f; --h1:#173252; --h2:#1b4a80; --h3:#1f5ea6; --h4:#2f78cc; --h5:#5598e7; --h6:#8dbcf1;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d1620; --card:#152230; --card2:#1a2a3a; --ink:#e9eef3; --ink2:#b5c1cd; --muted:#82919f;
+  --grid:#223344; --axis:#30455a; --line:#253749; --border:rgba(255,255,255,.08);
+  --side:#0a1520; --side2:#132332; --side-ink:#c9d6e2; --side-muted:#7d91a5; --side-on:#ffffff;
+  --accent:#5598e7; --accent-ink:#06121e; --accent-soft:#1b3350;
+  --brand:#e5484d; --good:#3fbf62; --bad:#f07167;
+  --c-rosso:#e66767; --c-blu:#3f8ae0; --c-giallo:#d39a12; --c-verde:#36b04f; --c-bianco:#cfd5dc;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#2c9a2c; --s7:#9085e9; --s8:#e66767;
+  --h0:#16222f; --h1:#173252; --h2:#1b4a80; --h3:#1f5ea6; --h4:#2f78cc; --h5:#5598e7; --h6:#8dbcf1;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);font:15px/1.5 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num,.kpi .v,h1,h2{font-family:"Barlow Semi Condensed","Barlow",system-ui,sans-serif}
+
+/* ---------- impianto ---------- */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh;background:linear-gradient(to right,var(--side) 248px,transparent 248px)}
+aside.side{background:var(--side);color:var(--side-ink);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;overflow-y:auto}
+.livery{height:7px;background:repeating-linear-gradient(135deg,var(--brand) 0 14px,#ffffff 14px 28px)}
+.brandbox{display:flex;gap:12px;align-items:center;padding:18px 18px 14px}
+.b118{font-family:"Barlow Semi Condensed",sans-serif;font-weight:700;font-size:22px;line-height:1;background:var(--brand);color:#fff;border-radius:7px;padding:7px 8px 6px}
+.brandbox h1{margin:0;font-size:18px;line-height:1.1;font-weight:700;color:var(--side-on)}
+.brandbox small{display:block;color:var(--side-muted);font-size:12.5px;margin-top:2px}
+nav.menu{padding:6px 10px 10px;flex:1}
+.menu .grp{color:var(--side-muted);font-size:12.5px;font-weight:600;padding:14px 10px 6px}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:var(--side-ink);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14.5px;font-weight:500;text-align:left}
+.menu button svg{width:18px;height:18px;flex:none;opacity:.75}
+.menu button:hover{background:var(--side2)}
+.menu button[aria-current="page"]{background:var(--side2);color:var(--side-on);font-weight:600;box-shadow:inset 3px 0 0 var(--brand)}
+.menu button[aria-current="page"] svg{opacity:1}
+.filebox{margin:10px 14px 16px;padding:12px;border-radius:10px;background:var(--side2);font-size:12.5px;color:var(--side-muted)}
+.filebox b{color:var(--side-on);font-weight:600}
+.filebox .status{display:flex;gap:7px;align-items:center;color:var(--side-ink);font-weight:600;font-size:13px;margin-bottom:4px}
+.filebox .status i{width:8px;height:8px;border-radius:50%;background:#3fbf62;display:inline-block}
+.sidebtns{display:flex;gap:6px;margin-top:10px}
+.cloud{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;color:var(--side-muted)}
+.cloud .status i{background:#8ea3b8}
+.cloud .status.ok i{background:#3fbf62}
+.cloud .status.warn i{background:#f5b014}
+.cloud .status.err i{background:#f07167}
+.cloud a,.linkbtn{color:#9cc4ff;cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font:inherit}
+.sbtn.pub{background:#1c5cab;border-color:#1c5cab;color:#fff;width:100%;margin-top:8px}
+dialog.dlg{border:0;border-radius:14px;padding:0;background:var(--card);color:var(--ink);width:min(380px,calc(100% - 32px));box-shadow:0 20px 50px rgba(0,0,0,.3)}
+dialog.dlg::backdrop{background:rgba(10,20,30,.5)}
+.dlg form{padding:22px}
+.dlg h3{margin:0 0 4px;font-size:19px}
+.dlg p{margin:0 0 14px;color:var(--ink2);font-size:14px}
+.dlg label{display:block;font-size:13.5px;font-weight:600;color:var(--ink2);margin:10px 0 4px}
+.dlg input{width:100%;border:1px solid var(--axis);background:var(--card);border-radius:8px;padding:9px 11px;font-size:15px}
+.dlg .err{color:var(--bad);font-size:13.5px;min-height:18px;margin-top:8px}
+.dlg .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.dlg .acts button{border:1px solid var(--axis);background:var(--card);border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+.dlg .acts button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sbtn{flex:1;display:inline-flex;justify-content:center;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.14);background:transparent;color:var(--side-ink);border-radius:8px;padding:7px 8px;cursor:pointer;font-size:13px;font-weight:600}
+.sbtn:hover{background:rgba(255,255,255,.06)}
+.sbtn.main{background:var(--brand);border-color:var(--brand);color:#fff;width:100%;padding:9px 10px;font-size:14px}
+.sbtn.main:hover{filter:brightness(1.07)}
+.sbtn svg{width:16px;height:16px}
+
+.content{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--page) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 28px}
+.ttl{margin-right:auto;min-width:0}
+.ttl h2{margin:0;font-size:24px;font-weight:700;line-height:1.15;letter-spacing:-.2px}
+.ttl p{margin:2px 0 0;color:var(--ink2);font-size:13.5px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:6px;padding:5px 11px;cursor:pointer;font-weight:600;font-size:14px;color:var(--ink2)}
+.seg button:hover{color:var(--ink);background:var(--card2)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+select{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:7px 30px 7px 11px;appearance:none;cursor:pointer;font-weight:600;font-size:14px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+.mobilebar{display:none}
+main{padding:22px 28px 60px}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- blocchi ---------- */
+.row{display:grid;gap:16px;margin-bottom:16px;align-items:start}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.c12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);min-width:0;padding:16px 18px 18px}
+.panel h3{margin:0;font-size:16px;font-weight:700;line-height:1.25}
+.panel .sub{margin:2px 0 12px;color:var(--muted);font-size:13px}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.chart{position:relative;height:290px}
+.chart.h220{height:220px}.chart.h360{height:360px}.chart.h420{height:420px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin:0 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpis.k4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpis.k5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px 10px;display:flex;flex-direction:column;min-width:0}
+.kpi .l{font-size:13px;color:var(--ink2);font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .v{font-size:30px;font-weight:700;line-height:1.1;margin-top:4px;letter-spacing:-.3px}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px;min-height:18px}
+.kpi svg.spark{width:100%;height:30px;margin-top:6px;display:block}
+.up{color:var(--good);font-weight:600}.down{color:var(--bad);font-weight:600}
+
+/* insight */
+.insights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.ins{border-left:3px solid var(--accent);background:var(--card);border-radius:0 var(--radius) var(--radius) 0;padding:10px 14px;font-size:14px;color:var(--ink2);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.ins b{color:var(--ink);font-weight:700;display:block;font-size:17px;font-family:"Barlow Semi Condensed",sans-serif}
+
+/* tabelle */
+details.tbl{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+details.tbl>summary{cursor:pointer;font-weight:600;font-size:13.5px;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px}
+details.tbl>summary::-webkit-details-marker{display:none}
+details.tbl>summary::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+details.tbl[open]>summary::before{transform:rotate(45deg)}
+details.tbl>summary .csv{margin-left:auto}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px}
+table.t{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+.t th,.t td{padding:7px 9px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+.t th:first-child,.t td:first-child{text-align:left}
+.t thead th{font-size:13px;color:var(--ink2);font-weight:600;vertical-align:bottom;background:var(--card)}
+.t tbody tr:hover td{background:var(--card2)}
+.t tfoot td{font-weight:700;border-top:2px solid var(--axis);border-bottom:0}
+.t td.z{color:var(--muted);opacity:.6}
+.t .hl td{background:var(--card2);font-weight:600}
+.t th.v{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;padding:8px 5px;white-space:nowrap}
+.t td.heat{font-weight:600}
+.neg{color:var(--bad);font-weight:700}
+.csv{border:1px solid var(--line);background:var(--card);border-radius:7px;padding:3px 9px;font-size:12.5px;cursor:pointer;color:var(--ink2);font-weight:600}
+.csv:hover{background:var(--card2)}
+.bar-cell{height:8px;border-radius:4px;background:var(--s1)}
+
+/* mesi */
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pills button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 13px;cursor:pointer;font-weight:600;font-size:14px;color:var(--ink2)}
+.pills button:hover{color:var(--ink)}
+.pills button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.pills button small{font-weight:500;opacity:.7;margin-left:4px}
+
+/* calendario */
+.cal{overflow-x:auto;padding-bottom:4px}
+.calg{display:grid;grid-auto-flow:column;grid-template-rows:16px repeat(7,13px);gap:3px;width:max-content}
+.calg .d{width:13px;height:13px;border-radius:3px;background:var(--h0)}
+.calg .ml{font-size:11.5px;color:var(--muted);grid-row:1;white-space:nowrap}
+.calwrap{display:flex;gap:8px}
+.calwd{display:grid;grid-template-rows:16px repeat(7,13px);gap:3px;font-size:11px;color:var(--muted)}
+.calwd span{line-height:13px}
+.scale{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted);margin-top:10px}
+.scale i{width:13px;height:13px;border-radius:3px;display:inline-block}
+
+.note{font-size:13.5px;color:var(--ink2);background:var(--card2);border-radius:8px;padding:10px 12px;margin-top:12px}
+.empty-v{padding:40px;text-align:center;color:var(--muted)}
+
+/* stato vuoto */
+#empty{display:none}
+body.nodata #empty{display:grid;place-items:center;min-height:70vh}
+body.nodata .views,body.nodata .topbar .filters{display:none}
+.drop{max-width:640px;width:100%;background:var(--card);border:2px dashed var(--axis);border-radius:16px;padding:44px 32px;text-align:center}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop h2{margin:12px 0 8px;font-size:26px}
+.drop p{color:var(--ink2);margin:6px auto;max-width:46ch}
+.drop svg.big{width:56px;height:56px;color:var(--accent)}
+.bigbtn{margin-top:18px;display:inline-flex;gap:8px;align-items:center;border:0;background:var(--brand);color:#fff;border-radius:10px;padding:11px 20px;font-weight:700;font-size:15px;cursor:pointer}
+.bigbtn svg{width:18px;height:18px}
+.privacy{font-size:13px;color:var(--muted);margin-top:16px}
+body.dragging::after{content:"Rilascia il file Excel per aggiornare i dati";position:fixed;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--ink);font-size:24px;font-weight:700;z-index:80;border:3px dashed var(--accent)}
+
+#busy{position:fixed;inset:0;background:color-mix(in srgb,var(--page) 70%,transparent);display:none;place-items:center;z-index:100}
+#busy.on{display:grid}
+.spin{width:38px;height:38px;border-radius:50%;border:3px solid var(--grid);border-top-color:var(--brand);animation:sp .8s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.busybox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 28px;text-align:center;font-weight:600}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;pointer-events:none;background:var(--ink);color:var(--card);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;transition:.25s;z-index:120;max-width:calc(100% - 32px)}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#tip{position:fixed;pointer-events:none;z-index:90;background:var(--card);color:var(--ink);border:1px solid var(--axis);border-radius:8px;padding:6px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;white-space:nowrap}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.insights{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1100px){.c2,.c3,.c21,.c12{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr);background:none}
+  aside.side{position:static;height:auto}
+  aside.side nav.menu{display:none}
+  .filebox{margin:0;border-radius:0;padding:10px 16px}
+  .filebox #fileinfo,.filebox .sidebtns{display:none}
+  .cloud{margin-top:0;padding-top:0;border-top:0}
+  .brandbox{padding:12px 16px}
+  .mobilebar{display:flex;gap:8px;padding:10px 16px;background:var(--side);overflow-x:auto;scrollbar-width:none}
+  .mobilebar button{flex:none;border:1px solid rgba(255,255,255,.16);background:transparent;color:var(--side-ink);border-radius:20px;padding:6px 12px;font-weight:600;font-size:13.5px;white-space:nowrap}
+  .mobilebar button[aria-current="page"]{background:#fff;color:var(--side)}
+  .mobilebar button.load{background:var(--brand);border-color:var(--brand);color:#fff}
+  .topbar{position:static}
+  .topbar .in{padding:12px 16px}
+  main{padding:16px 16px 50px}
+  .kpis,.kpis.k4,.kpis.k5{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .insights{grid-template-columns:minmax(0,1fr)}
+  .kpi .v{font-size:25px}
+  .ttl h2{font-size:21px}
+}
+@media print{
+  aside.side,.topbar .filters,#toast,.csv,.pills{display:none!important}
+  .app{grid-template-columns:1fr}
+  .topbar{position:static}
+  body{background:#fff}
+  .panel,.kpi{break-inside:avoid}
+  details.tbl{display:none}
+}
+</style>
+</head>
+<body class="nodata">
+<div class="app">
+  <aside class="side">
+    <div class="livery" aria-hidden="true"></div>
+    <div class="brandbox">
+      <span class="b118">118</span>
+      <div><h1>Statistiche trasporti</h1><small>118 · ISS San Marino</small></div>
+    </div>
+    <div class="mobilebar" id="mobilebar"></div>
+    <nav class="menu" id="menu" aria-label="Sezioni"></nav>
+    <div class="filebox">
+      <div id="fileinfo"><div class="status">Nessun file caricato</div>Carica il file Excel dei trasporti per vedere i conteggi.</div>
+      <div class="sidebtns" style="flex-direction:column">
+        <button class="sbtn main" id="btnLoad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          Carica file Excel
+        </button>
+      </div>
+      <div class="sidebtns">
+        <button class="sbtn" id="btnPrint" title="Stampa o salva in PDF la sezione aperta">Stampa</button>
+        <button class="sbtn" id="btnTheme" title="Tema chiaro o scuro">Tema</button>
+        <button class="sbtn" id="btnClear" title="Cancella i dati salvati in questo browser">Svuota</button>
+      </div>
+      <div class="cloud" id="cloud"><div class="status"><i></i>Cloud: collegamento…</div></div>
+      <input type="file" id="file" accept=".xlsx,.xlsm,.xls" hidden>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="topbar">
+      <div class="in">
+        <div class="ttl"><h2 id="vTitle">Statistiche trasporti 118</h2><p id="vDesc">Carica il file Excel per iniziare</p></div>
+        <div class="filters" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div class="seg" id="years" role="group" aria-label="Anno"></div>
+          <select id="fPeriod" aria-label="Periodo"></select>
+        </div>
+      </div>
+    </div>
+    <main>
+      <section id="empty">
+        <div class="drop" id="drop">
+          <svg class="big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13l2 2 4-4"/></svg>
+          <h2>Carica il file dei trasporti</h2>
+          <p>Trascina qui il file Excel <b>Trasporti 118</b> oppure sceglilo dal computer. Conteggi, medici e grafici si calcolano da soli.</p>
+          <button class="bigbtn" id="btnLoad2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            Scegli il file Excel
+          </button>
+          <div class="privacy">Il file resta su questo computer: viene letto nel browser e non viene inviato a nessuno. I nomi dei pazienti non vengono usati né salvati.</div>
+          <div class="privacy" id="libstatus"></div>
+        </div>
+      </section>
+      <div class="views">
+        <section class="view" id="v-panoramica"></section>
+        <section class="view" id="v-andamento"></section>
+        <section class="view" id="v-conteggi"></section>
+        <section class="view" id="v-medici"></section>
+        <section class="view" id="v-codici"></section>
+        <section class="view" id="v-personale"></section>
+        <section class="view" id="v-costi"></section>
+        <section class="view" id="v-croce"></section>
+        <section class="view" id="v-qualita"></section>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="busy"><div class="busybox"><div class="spin"></div><div id="busytxt">Elaborazione del file…</div></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="tip"></div>
+
+
+<script>
+/* ==== CORE: parsing + aggregazioni (nessuna dipendenza dal DOM) ==== */
+(function (root) {
+  'use strict';
+
+  var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  var MESI_BREVI = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  var FASCE = ['N 00-6','M 6-12','P 12-18','S 18-00'];
+  var FASCE_LABEL = { 'N 00-6':'Notte 00–06', 'M 6-12':'Mattina 06–12', 'P 12-18':'Pomeriggio 12–18', 'S 18-00':'Sera 18–24' };
+  var CODICI = ['ROSSO','BLU','GIALLO','VERDE','BIANCO'];
+  var RIENTRI = [
+    ['COD.1','Cod. 1'], ['COD.2','Cod. 2'], ['COD.3/B','Cod. 3B'], ['COD.3/A','Cod. 3A'], ['COD.4','Cod. 4'],
+    ['RIFIUTO','Rifiuto trasporto'], ['SUL_POSTO','Trattato sul posto'], ['SUL_POSTO_RIF','Trattato + rifiuto'],
+    ['DECESSO','Decesso'], ['CENTRALIZZATO','Centralizzato'], ['ALTRO','Altro']
+  ];
+  var STRUTTURE = [
+    ['Casale la Fiorina', /^casale/i],
+    ['Villa Oasi', /^villa/i],
+    ['Colore del Grano', /^colore/i],
+    ['Filo di Arianna', /^filo/i]
+  ];
+  var TARIFFE = { nonAssistito: 257, ticket: 30, reperibilita: 36, crNonAssistito: 257 };
+
+  /* ---------- utilità ---------- */
+  function norm(v) { return v == null ? '' : String(v).replace(/\s+/g, ' ').trim(); }
+  function normHeader(v) { return norm(v).toLowerCase(); }
+  function isNum(v) { return typeof v === 'number' && isFinite(v); }
+
+  // giorno assoluto (giorni dal 1970-01-01) <-> {y,m,d}
+  function serialToDay(n) { return Math.floor(n) - 25569; }
+  function dayToYMD(day) {
+    var dt = new Date(day * 86400000);
+    return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
+  }
+  function ymdToDay(y, m, d) { return Math.floor(Date.UTC(y, m - 1, d) / 86400000); }
+  function dayToISO(day) {
+    var o = dayToYMD(day);
+    return o.y + '-' + (o.m < 10 ? '0' : '') + o.m + '-' + (o.d < 10 ? '0' : '') + o.d;
+  }
+  function dayToIT(day) {
+    var o = dayToYMD(day);
+    return (o.d < 10 ? '0' : '') + o.d + '/' + (o.m < 10 ? '0' : '') + o.m + '/' + o.y;
+  }
+  function todayDay() { var n = new Date(); return ymdToDay(n.getFullYear(), n.getMonth() + 1, n.getDate()); }
+
+  // prova a leggere una data scritta come testo ("22/07/2023", "08/007/2026" ...)
+  function parseTextDate(s) {
+    var t = norm(s);
+    var m = t.match(/^(\d{1,2})\D+(\d{1,3})\D+(\d{4})$/);
+    if (!m) return null;
+    var d = +m[1], mo = +m[2], y = +m[3];
+    if (d < 1 || d > 31 || mo < 1 || mo > 12 || y < 2000 || y > 2100) return null;
+    return ymdToDay(y, mo, d);
+  }
+
+  // giorno/mese leggibili da un testo anche malformato ("30/092024" -> 30, 09)
+  function textDM(s) {
+    var g = norm(s).match(/\d+/g);
+    if (!g) return null;
+    if (g.length >= 3) return { d: +g[0], m: +g[1] };
+    if (g.length === 2 && g[1].length > 4) return { d: +g[0], m: +g[1].slice(0, g[1].length - 4) };
+    return null;
+  }
+  // ricostruisce la data più plausibile vicino alla mediana (anno sbagliato, giorno/mese invertiti)
+  function repairDate(d, m, med, tol) {
+    if (med == null) return null;
+    var my = dayToYMD(med).y, best = null, bestDist = Infinity;
+    [[d, m], [m, d]].forEach(function (p) {
+      if (p[0] < 1 || p[0] > 31 || p[1] < 1 || p[1] > 12) return;
+      for (var y = my - 1; y <= my + 1; y++) {
+        var day = ymdToDay(y, p[1], p[0]);
+        if (dayToYMD(day).d !== p[0]) continue;
+        var dist = Math.abs(day - med);
+        if (dist <= tol && dist < bestDist) { best = day; bestDist = dist; }
+      }
+    });
+    return best;
+  }
+
+  function median(arr) {
+    if (!arr.length) return null;
+    var a = arr.slice().sort(function (x, y) { return x - y; });
+    var h = a.length >> 1;
+    return a.length % 2 ? a[h] : Math.round((a[h - 1] + a[h]) / 2);
+  }
+
+  // nomi persone: "mini" -> "Mini", "Mosca/Marchetti" -> ["Mosca","Marchetti"]
+  function capWord(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
+  function normName(s) {
+    s = norm(s);
+    if (!s || s === '-' || s === '.' || s === '/') return '';
+    return s.split(' ').map(function (w) {
+      return w.split("'").map(capWord).join("'");
+    }).join(' ');
+  }
+  function people(v) {
+    var s = norm(v);
+    if (!s) return [];
+    return s.split('/').map(normName).filter(Boolean);
+  }
+
+  function normFascia(v) {
+    var s = norm(v);
+    if (!s) return '';
+    if (/rep/i.test(s)) return 'REP';
+    var c = s.charAt(0).toUpperCase();
+    if (c === 'N') return 'N 00-6';
+    if (c === 'M') return 'M 6-12';
+    if (c === 'P') return 'P 12-18';
+    if (c === 'S') return 'S 18-00';
+    return s;
+  }
+  function normCodice(v) {
+    var s = norm(v).toUpperCase();
+    return CODICI.indexOf(s) >= 0 ? s : (s ? 'ALTRO' : '');
+  }
+  function normRientro(v) {
+    var s = norm(v).toUpperCase().replace(/\s/g, '');
+    if (!s) return '';
+    if (s.indexOf('RIFIUT') >= 0 && s.indexOf('POSTO') >= 0) return 'SUL_POSTO_RIF';
+    if (s.indexOf('POSTO') >= 0) return 'SUL_POSTO';
+    if (s.indexOf('RIFIUT') >= 0) return 'RIFIUTO';
+    if (s.indexOf('DECESS') >= 0) return 'DECESSO';
+    if (s.indexOf('CENTRALIZZ') >= 0) return 'CENTRALIZZATO';
+    if (/^COD\.?1/.test(s)) return 'COD.1';
+    if (/^COD\.?2/.test(s)) return 'COD.2';
+    if (/^COD\.?3\/?B/.test(s)) return 'COD.3/B';
+    if (/^COD\.?3\/?A/.test(s)) return 'COD.3/A';
+    if (/^COD\.?4/.test(s)) return 'COD.4';
+    return 'ALTRO';
+  }
+  function normAssist(v) {
+    var s = norm(v).toLowerCase();
+    if (!s) return '';
+    if (s === 'si' || s === 'sì') return 'si';
+    if (s === 'no') return 'no';
+    if (s.indexOf('conv') === 0) return 'conv';
+    return '?';
+  }
+  function normSiNo(v) {
+    var s = norm(v).toUpperCase();
+    if (s === 'SI' || s === 'SÌ') return 'SI';
+    if (s === 'NO') return 'NO';
+    if (s === '?') return '?';
+    return '';
+  }
+  function struttura(note) {
+    var s = norm(note);
+    for (var i = 0; i < STRUTTURE.length; i++) if (STRUTTURE[i][1].test(s)) return STRUTTURE[i][0];
+    return '';
+  }
+  function enteCR(v) {
+    var s = norm(v).toLowerCase();
+    if (!s) return 'Non indicato';
+    if (/bianco\s*azzurr/.test(s)) return 'Croce Bianco Azzurra';
+    if (/santarcangelo/.test(s)) return 'Croce Santarcangelo';
+    if (/pesaro|romagna/.test(s)) return 'Altri 118 (Romagna/Pesaro)';
+    if (/evento|manifest|rally|stadium|medieval|natale|fiera/.test(s)) return 'CRS Eventi / manifestazioni';
+    if (/citt/.test(s)) return 'CRS Città';
+    if (/\bps\b|pronto/.test(s)) return 'CRS in PS';
+    if (/crs|croce rossa/.test(s)) return 'CRS';
+    return norm(v);
+  }
+
+  /* ---------- lettura fogli ---------- */
+  function findSheet(wb, re, fallbackIdx) {
+    for (var i = 0; i < wb.SheetNames.length; i++) if (re.test(wb.SheetNames[i])) return wb.SheetNames[i];
+    return fallbackIdx != null ? wb.SheetNames[fallbackIdx] : null;
+  }
+
+  function sheetRows(XLSX, ws, maxCol) {
+    if (!ws || !ws['!ref']) return { rows: [], r0: 0 };
+    var rng = XLSX.utils.decode_range(ws['!ref']);
+    rng.s.c = 0;
+    rng.e.c = Math.min(rng.e.c, maxCol);
+    var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null, blankrows: true, range: rng });
+    return { rows: rows, r0: rng.s.r };
+  }
+
+  function mapHeaders(rows, defs, defaults, probe) {
+    var hr = -1;
+    for (var r = 0; r < Math.min(rows.length, 12); r++) {
+      var row = rows[r] || [];
+      for (var c = 0; c < row.length; c++) if (probe.test(normHeader(row[c]))) { hr = r; break; }
+      if (hr >= 0) break;
+    }
+    var map = {}, k;
+    for (k in defaults) map[k] = defaults[k];
+    if (hr < 0) return { headerRow: 1, map: map, found: false };
+    var hdr = rows[hr] || [], used = {};
+    for (k in defs) {
+      for (var c2 = 0; c2 < hdr.length; c2++) {
+        if (used[c2]) continue;
+        if (defs[k].test(normHeader(hdr[c2]))) { map[k] = c2; used[c2] = 1; break; }
+      }
+    }
+    return { headerRow: hr, map: map, found: true };
+  }
+
+  var PS_DEFS = {
+    data: /^data/, fascia: /^fascia/, amb: /^ambulanza/, cod: /^cod\.? ?inv/, rientro: /^codice ?rientro|^cod\.? ?rientro/,
+    rcp: /^rcp/, rosc: /^rosc/, flagm: /^flag/, esito: /^esito/, inf1: /^infermiere ?1/, inf2: /^infermiere ?2/,
+    autista: /^autista/, medico: /^medico/, castello: /^castello/, assist: /^assist ?iss|^assist\.? ?iss/,
+    qno: /^assistit\.? ?no/, rsi: /^assistit\.? ?si/, note: /^note/
+  };
+  var PS_DEFAULTS = { data:0, fascia:1, amb:2, cod:3, rientro:4, rcp:5, rosc:6, flagm:7, esito:8, inf1:9, inf2:10,
+    autista:11, medico:12, castello:14, assist:15, qno:16, rsi:17, note:18 };
+
+  var CR_DEFS = {
+    data: /^data/, fascia: /^fascia/, inf: /^infermiere|soccorritore/, autista: /^autista/, castello: /^castello/,
+    assist: /^assistito/, importo: /^importo/, costo: /^costo/, amb: /^ambulanza/, note: /^note/,
+    cod: /cod\.? ?invio/, rientro: /cod\.? ?rientro/, operatore: /^operatore/
+  };
+  var CR_DEFAULTS = { data:0, fascia:1, inf:2, autista:3, castello:5, assist:6, importo:7, costo:8, amb:9, note:10,
+    cod:14, rientro:15, operatore:16 };
+
+  function cell(row, idx) { return row && idx != null ? row[idx] : null; }
+
+  function parsePS(XLSX, ws, issues) {
+    var sr = sheetRows(XLSX, ws, 30), rows = sr.rows;
+    var hm = mapHeaders(rows, PS_DEFS, PS_DEFAULTS, /^fascia$/);
+    var M = hm.map, out = [];
+    // 1) righe dati
+    var cand = [];
+    for (var r = hm.headerRow + 1; r < rows.length; r++) {
+      var row = rows[r];
+      if (!row) continue;
+      var f = norm(cell(row, M.fascia)), cod = norm(cell(row, M.cod)), au = norm(cell(row, M.autista)),
+          i1 = norm(cell(row, M.inf1)), ca = norm(cell(row, M.castello)), as = norm(cell(row, M.assist)),
+          rie = norm(cell(row, M.rientro));
+      if (!(f || cod || au || i1 || ca || as || rie)) continue;
+      var raw = cell(row, M.data);
+      var rawTxt = typeof raw === 'string' ? norm(raw) : '';
+      // riga separatrice ("2024", "FEBBRAIO" ...)
+      if (rawTxt && !f && !cod && parseTextDate(rawTxt) == null) continue;
+      // senza data e senza fascia = paziente aggiuntivo della stessa uscita (regola del foglio)
+      var extra = (raw == null || (typeof raw === 'string' && !rawTxt)) && !f;
+      cand.push({ r: r, row: row, raw: raw, extra: extra, num: isNum(raw) && raw > 60 ? serialToDay(raw) : null });
+    }
+    // 2) controllo date con mediana dei vicini
+    var nums = [];
+    for (var i = 0; i < cand.length; i++) if (cand[i].num != null) nums.push(i);
+    var pos = {}; nums.forEach(function (ci, k) { pos[ci] = k; });
+    var prevDay = null, K = 4, TOL = 20;
+    function neighMedian(ci) {
+      // indice nel vettore nums del primo numero >= ci
+      var lo = 0, hi = nums.length;
+      while (lo < hi) { var mid = (lo + hi) >> 1; if (nums[mid] < ci) lo = mid + 1; else hi = mid; }
+      var vals = [];
+      for (var a = lo - 1, n = 0; a >= 0 && n < K; a--, n++) vals.push(cand[nums[a]].num);
+      var b = (nums[lo] === ci) ? lo + 1 : lo;
+      for (var n2 = 0; b < nums.length && n2 < K; b++, n2++) vals.push(cand[nums[b]].num);
+      return median(vals);
+    }
+    for (var j = 0; j < cand.length; j++) {
+      var c = cand[j], med = neighMedian(j), day = null, xlsRow = c.r + sr.r0 + 1;
+      if (c.num != null) {
+        if (med == null || Math.abs(c.num - med) <= TOL) day = c.num;
+        else {
+          var o = dayToYMD(c.num);
+          day = repairDate(o.d, o.m, med, TOL);
+          if (day == null) day = prevDay != null ? prevDay : med;
+          issues.push({ sheet: 'Pronto Soccorso', row: xlsRow, type: 'Data incoerente',
+            raw: dayToIT(c.num), fixed: dayToIT(day) });
+        }
+      } else if (c.extra) {
+        day = prevDay != null ? prevDay : med;
+      } else {
+        var t = (typeof c.raw === 'string') ? parseTextDate(c.raw) : null;
+        if (t != null && (med == null || Math.abs(t - med) <= TOL)) {
+          day = t;
+          issues.push({ sheet: 'Pronto Soccorso', row: xlsRow, type: 'Data scritta come testo', raw: norm(c.raw), fixed: dayToIT(day) });
+        } else {
+          var dm = (typeof c.raw === 'string') ? textDM(c.raw) : null;
+          day = dm ? repairDate(dm.d, dm.m, med, TOL) : null;
+          if (day == null) day = prevDay != null ? prevDay : med;
+          issues.push({ sheet: 'Pronto Soccorso', row: xlsRow, type: c.raw == null || norm(c.raw) === '' ? 'Data mancante' : 'Data non valida',
+            raw: norm(c.raw) === '' ? '(vuota)' : norm(c.raw), fixed: day != null ? dayToIT(day) : '—' });
+        }
+      }
+      if (day == null) continue;
+      prevDay = day;
+      var row2 = c.row, ymd = dayToYMD(day);
+      var fRaw = norm(cell(row2, M.fascia)), fas = normFascia(fRaw);
+      if (fRaw && FASCE.indexOf(fRaw) < 0 && fas !== 'REP')
+        issues.push({ sheet: 'Pronto Soccorso', row: xlsRow, type: 'Fascia non standard', raw: fRaw, fixed: fas });
+      var medici = people(cell(row2, M.medico));
+      var q = cell(row2, M.qno), rr = cell(row2, M.rsi), as2 = normAssist(cell(row2, M.assist));
+      var qv = isNum(q) ? q : (as2 === 'no' ? TARIFFE.nonAssistito : 0);
+      var rv = isNum(rr) ? rr : (as2 === 'si' ? TARIFFE.ticket : 0);
+      if ((!isNum(q) || !isNum(rr)) && (as2 === 'si' || as2 === 'no'))
+        issues.push({ sheet: 'Pronto Soccorso', row: xlsRow, type: 'Formula costo mancante',
+          raw: 'assistito: ' + as2, fixed: 'calcolato € ' + (qv + rv) });
+      var codRaw = norm(cell(row2, M.cod)), rieRaw = norm(cell(row2, M.rientro));
+      out.push({
+        row: xlsRow, day: day, y: ymd.y, m: ymd.m,
+        fascia: fas, extra: c.extra ? 1 : 0,
+        amb:norm(cell(row2, M.amb)),
+        cod: normCodice(codRaw),
+        rientro: normRientro(rieRaw),
+        rientroRaw: rieRaw,
+        rcp: normSiNo(cell(row2, M.rcp)),
+        rosc: normSiNo(cell(row2, M.rosc)),
+        flagm: normSiNo(cell(row2, M.flagm)),
+        esito: norm(cell(row2, M.esito)),
+        inf: people(cell(row2, M.inf1)).concat(people(cell(row2, M.inf2))),
+        aut: people(cell(row2, M.autista)),
+        med: medici,
+        castello: normName(cell(row2, M.castello)),
+        assist: as2,
+        q: qv, r: rv,
+        strutt: struttura(cell(row2, M.note))
+      });
+    }
+    return { recs: out, headerFound: hm.found };
+  }
+
+  function parseCR(XLSX, ws, issues) {
+    var sr = sheetRows(XLSX, ws, 20), rows = sr.rows;
+    var hm = mapHeaders(rows, CR_DEFS, CR_DEFAULTS, /^fascia$/);
+    var M = hm.map, out = [], lastDay = null, maxDay = todayDay() + 400;
+    for (var r = hm.headerRow + 1; r < rows.length; r++) {
+      var row = rows[r];
+      if (!row) continue;
+      var f = norm(cell(row, M.fascia)), amb = norm(cell(row, M.amb)), au = norm(cell(row, M.autista)), as = norm(cell(row, M.assist));
+      if (!(f || amb || au || as)) continue;
+      var raw = cell(row, M.data), day = null, xlsRow = r + sr.r0 + 1;
+      if (isNum(raw) && raw > 60) day = serialToDay(raw);
+      else if (typeof raw === 'string') {
+        day = parseTextDate(raw);
+        issues.push({ sheet: 'Croce Rossa', row: xlsRow, type: day != null ? 'Data scritta come testo' : 'Data non valida',
+          raw: norm(raw), fixed: day != null ? dayToIT(day) : (lastDay != null ? dayToIT(lastDay) : '—') });
+        if (day == null) day = lastDay;
+      } else {
+        issues.push({ sheet: 'Croce Rossa', row: xlsRow, type: 'Data mancante', raw: '(vuota)', fixed: lastDay != null ? dayToIT(lastDay) : '—' });
+        day = lastDay;
+      }
+      if (day == null) continue;
+      var ymd0 = dayToYMD(day);
+      if (ymd0.y < 2015 || day > maxDay) {
+        issues.push({ sheet: 'Croce Rossa', row: xlsRow, type: 'Data incoerente', raw: dayToIT(day), fixed: lastDay != null ? dayToIT(lastDay) : '—' });
+        if (lastDay == null) continue;
+        day = lastDay;
+      }
+      lastDay = day;
+      var ymd = dayToYMD(day), assist = normAssist(cell(row, M.assist));
+      var imp = cell(row, M.importo), cos = cell(row, M.costo);
+      var rie = norm(cell(row, M.rientro));
+      if (/^cod\.? ?rientro$/i.test(rie)) rie = '';
+      var codI = norm(cell(row, M.cod)).toUpperCase();
+      out.push({
+        row: xlsRow, day: day, y: ymd.y, m: ymd.m,
+        fascia: f, ente: enteCR(amb), entRaw: amb,
+        inf: people(cell(row, M.inf)), aut: people(cell(row, M.autista)),
+        castello: normName(cell(row, M.castello)),
+        assist: assist,
+        imp: isNum(imp) ? imp : (assist === 'no' ? TARIFFE.crNonAssistito : 0),
+        cos: isNum(cos) ? cos : (assist === 'si' ? TARIFFE.ticket : 0),
+        cod: CODICI.indexOf(codI) >= 0 ? codI : '',
+        rientro: rie
+      });
+    }
+    return { recs: out };
+  }
+
+  function parseWorkbook(XLSX, wb, fileName) {
+    var issues = [];
+    var psName = findSheet(wb, /pronto\s*soccorso/i, 0);
+    var crName = findSheet(wb, /croce\s*rossa|croci\s*private/i, null);
+    if (!psName) throw new Error('Foglio "Pronto Soccorso" non trovato');
+    var ps = parsePS(XLSX, wb.Sheets[psName], issues);
+    if (!ps.recs.length) throw new Error('Nessun trasporto trovato nel foglio "' + psName + '"');
+    var cr = crName ? parseCR(XLSX, wb.Sheets[crName], issues) : { recs: [] };
+    var maxDay = 0, minDay = Infinity;
+    ps.recs.forEach(function (x) { if (x.day > maxDay) maxDay = x.day; if (x.day < minDay) minDay = x.day; });
+    return {
+      v: 1,
+      ps: ps.recs, cr: cr.recs, issues: issues,
+      meta: {
+        file: fileName || '', loadedAt: new Date().toISOString(),
+        psSheet: psName, crSheet: crName, firstDay: minDay, lastDay: maxDay,
+        sheets: wb.SheetNames.slice()
+      }
+    };
+  }
+
+  /* ---------- aggregazioni ---------- */
+  // period: 'all' | 'h1' | 'h2' | 1..12 ; year: number | 'all'
+  function inPeriod(rec, year, period) {
+    if (year !== 'all' && rec.y !== year) return false;
+    if (period === 'all' || period == null) return true;
+    if (period === 'h1') return rec.m <= 6;
+    if (period === 'h2') return rec.m >= 7;
+    return rec.m === +period;
+  }
+  function filter(recs, year, period) { return recs.filter(function (r) { return inPeriod(r, year, period); }); }
+  function inRange(recs, fromDay, toDay) {
+    return recs.filter(function (r) { return (fromDay == null || r.day >= fromDay) && (toDay == null || r.day <= toDay); });
+  }
+
+  function years(data) {
+    var s = {};
+    data.ps.forEach(function (r) { s[r.y] = 1; });
+    return Object.keys(s).map(Number).sort(function (a, b) { return a - b; });
+  }
+
+  // blocco conteggi (come i riquadri di "Conteggi Mensili")
+  function counts(recs) {
+    var o = { total: 0, rep: 0, rosso: 0, blu: 0, rb: 0, med: 0, rbMed: 0, rbNoMed: 0, medici: {} };
+    for (var i = 0; i < recs.length; i++) {
+      var r = recs[i];
+      if (r.fascia === 'REP') { o.rep++; continue; }
+      if (FASCE.indexOf(r.fascia) < 0) continue;
+      o.total++;
+      var isRB = r.cod === 'ROSSO' || r.cod === 'BLU';
+      if (r.cod === 'ROSSO') o.rosso++;
+      if (r.cod === 'BLU') o.blu++;
+      if (isRB) o.rb++;
+      if (r.med.length) {
+        o.med++;
+        if (isRB) o.rbMed++;
+        r.med.forEach(function (n) { o.medici[n] = (o.medici[n] || 0) + 1; });
+      } else if (isRB) o.rbNoMed++;
+    }
+    return o;
+  }
+  function byFascia(recs) {
+    var o = {};
+    FASCE.forEach(function (f) { o[f] = []; });
+    recs.forEach(function (r) { if (o[r.fascia]) o[r.fascia].push(r); });
+    return o;
+  }
+  function groupBy(recs, keyFn) {
+    var o = {};
+    recs.forEach(function (r) { var k = keyFn(r); (o[k] = o[k] || []).push(r); });
+    return o;
+  }
+  function tally(recs, listFn) {
+    var o = {};
+    recs.forEach(function (r) {
+      var v = listFn(r);
+      if (!Array.isArray(v)) v = v ? [v] : [];
+      v.forEach(function (k) { if (k) o[k] = (o[k] || 0) + 1; });
+    });
+    return Object.keys(o).map(function (k) { return [k, o[k]]; }).sort(function (a, b) { return b[1] - a[1] || a[0].localeCompare(b[0]); });
+  }
+  function matrix(recs) {
+    var m = {};
+    CODICI.forEach(function (c) { m[c] = { tot: 0 }; RIENTRI.forEach(function (rr) { m[c][rr[0]] = 0; }); m[c].none = 0; });
+    recs.forEach(function (r) {
+      if (!m[r.cod]) return;
+      m[r.cod].tot++;
+      if (r.rientro) m[r.cod][r.rientro]++; else m[r.cod].none++;
+    });
+    return m;
+  }
+  function costi(recs) {
+    var o = { q: 0, r: 0, si: 0, no: 0, conv: 0, unk: 0, vuoto: 0, rep: 0 };
+    recs.forEach(function (x) {
+      o.q += x.q || 0; o.r += x.r || 0;
+      if (x.assist === 'si') o.si++; else if (x.assist === 'no') o.no++; else if (x.assist === 'conv') o.conv++;
+      else if (x.assist === '?') o.unk++; else o.vuoto++;
+      if (x.fascia === 'REP') o.rep++;
+    });
+    o.repEuro = o.rep * TARIFFE.reperibilita;
+    o.tot = o.q + o.r;
+    return o;
+  }
+  function crsCitta(crRecs) { return crRecs.filter(function (r) { return r.ente === 'CRS Città'; }); }
+
+  var Core = {
+    MESI: MESI, MESI_BREVI: MESI_BREVI, FASCE: FASCE, FASCE_LABEL: FASCE_LABEL, CODICI: CODICI, RIENTRI: RIENTRI,
+    STRUTTURE: STRUTTURE.map(function (s) { return s[0]; }), TARIFFE: TARIFFE,
+    parseWorkbook: parseWorkbook, years: years, filter: filter, inRange: inRange, inPeriod: inPeriod,
+    counts: counts, byFascia: byFascia, groupBy: groupBy, tally: tally, matrix: matrix, costi: costi, crsCitta: crsCitta,
+    dayToISO: dayToISO, dayToIT: dayToIT, ymdToDay: ymdToDay, dayToYMD: dayToYMD, todayDay: todayDay,
+    _normRientro: normRientro, _parseTextDate: parseTextDate, _people: people
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = Core; else root.Core = Core;
+})(this);
+
+</script>
+<script>
+/* ==== APP: interfaccia, grafici, salvataggio locale ==== */
+(function () {
+  'use strict';
+  var C = window.Core;
+
+  /* ---------- librerie esterne (con CDN di riserva) ---------- */
+  var LIBS = {
+    xlsx: ['https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+           'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'],
+    chart: ['https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js']
+  };
+  function loadScript(urls) {
+    return new Promise(function (res, rej) {
+      var i = 0;
+      (function next() {
+        if (i >= urls.length) return rej(new Error('Libreria non raggiungibile'));
+        var s = document.createElement('script');
+        s.src = urls[i++];
+        s.onload = function () { res(); };
+        s.onerror = function () { s.remove(); next(); };
+        document.head.appendChild(s);
+      })();
+    });
+  }
+  var chartReady = loadScript(LIBS.chart);
+  var xlsxReady = loadScript(LIBS.xlsx);
+
+  /* ---------- sezioni ---------- */
+  var IC = {
+    home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+    trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+    table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/>',
+    med: '<path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/>',
+    codes: '<circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/>',
+    team: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/>',
+    euro: '<path d="M17 6a7 7 0 1 0 0 12"/><path d="M4 10h9M4 14h9"/>',
+    cross: '<rect x="3" y="7" width="13" height="10" rx="1"/><path d="M16 10h3l2 3v4h-5"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/><path d="M9.5 9.5v5M7 12h5"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>'
+  };
+  var SECTIONS = [
+    ['Riepilogo', [
+      ['panoramica', 'Panoramica', 'home', 'Il quadro del periodo scelto'],
+      ['andamento', 'Andamento', 'trend', 'Confronto tra anni, uscite giorno per giorno e giorni della settimana']]],
+    ['Conteggi', [
+      ['conteggi', 'Conteggi mensili', 'table', 'Totale viaggi per fascia, codice e medico, mese per mese'],
+      ['medici', 'Medici e Rosse/Blu', 'med', 'Uscite medicalizzate e urgenze senza medico'],
+      ['codici', 'Codici ed esiti', 'codes', 'Codice di invio, codice di rientro e arresti cardiaci']]],
+    ['Risorse e costi', [
+      ['personale', 'Personale e mezzi', 'team', 'Uscite per autista, infermiere, ambulanza e castello'],
+      ['costi', 'Costi e assistiti', 'euro', 'Addebiti trasporto, assistiti ISS e strutture residenziali'],
+      ['croce', 'Croce Rossa', 'cross', 'Trasporti 118 svolti da CRS e croci private']]],
+    ['Controllo', [
+      ['qualita', 'Qualità dati', 'check', 'Correzioni automatiche e celle da completare nel file']]]
+  ];
+  var META = {};
+  SECTIONS.forEach(function (g) { g[1].forEach(function (s) { META[s[0]] = s; }); });
+
+  var S = { data: null, year: null, period: 'all', tab: 'panoramica', month: null, dirty: {} };
+  var charts = {};
+
+  /* ---------- utilità ---------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  var NF = new Intl.NumberFormat('it-IT');
+  var NF1 = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var EF = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  function n(x) { return NF.format(x); }
+  function eur(x) { return EF.format(x); }
+  function pct(a, b) { return b ? NF1.format(a / b * 100) + '%' : '—'; }
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  function tdn(v) { return v ? '<td>' + n(v) + '</td>' : '<td class="z">0</td>'; }
+  function tde(v) { return v ? '<td>' + eur(v) + '</td>' : '<td class="z">' + eur(0) + '</td>'; }
+  function sum(a) { return a.reduce(function (x, y) { return x + y; }, 0); }
+  function range(a, b) { var o = []; for (var i = a; i <= b; i++) o.push(i); return o; }
+  function tick() { return new Promise(function (r) { setTimeout(r, 30); }); }
+  function U(recs) { return recs.filter(function (r) { return C.FASCE.indexOf(r.fascia) >= 0; }); }
+  function isRB(r) { return r.cod === 'ROSSO' || r.cod === 'BLU'; }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  var GIORNI = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+  var GG = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+  function dow(day) { return (day + 3) % 7; } // 0 = lunedì (1/1/1970 era giovedì)
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function cap0(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
+
+  var toastT;
+  function toast(msg, ms) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('on'); }, ms || 4000);
+  }
+  function busy(on, txt) { $('busy').classList.toggle('on', !!on); if (txt) $('busytxt').textContent = txt; }
+
+  /* ---------- IndexedDB ---------- */
+  var DB = {
+    open: function () {
+      return new Promise(function (res, rej) {
+        var r = indexedDB.open('trasporti118', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+        r.onsuccess = function () { res(r.result); };
+        r.onerror = function () { rej(r.error); };
+      });
+    },
+    op: function (mode, fn) {
+      return DB.open().then(function (db) {
+        return new Promise(function (res, rej) {
+          var tx = db.transaction('kv', mode), q = fn(tx.objectStore('kv'));
+          tx.oncomplete = function () { db.close(); res(q && q.result); };
+          tx.onerror = function () { db.close(); rej(tx.error); };
+        });
+      });
+    },
+    get: function (k) { return DB.op('readonly', function (s) { return s.get(k); }); },
+    set: function (k, v) { return DB.op('readwrite', function (s) { return s.put(v, k); }); },
+    del: function (k) { return DB.op('readwrite', function (s) { return s.delete(k); }); }
+  };
+
+  /* ---------- periodi ---------- */
+  function years() { return C.years(S.data); }
+  function lastYMD() { return C.dayToYMD(S.data.meta.lastDay); }
+  function monthsOf(p) {
+    if (p === 'all') return range(1, 12);
+    if (p === 'h1') return range(1, 6);
+    if (p === 'h2') return range(7, 12);
+    return [+p];
+  }
+  function sel(recs) { return C.filter(recs || S.data.ps, S.year, S.period); }
+  function byYear() { return S.year === 'all'; }
+  function unitLbl() { return byYear() ? 'anno' : 'mese'; }
+  // contenitori: i mesi dell'anno scelto, oppure gli anni se "Tutti"
+  function buckets(all) {
+    var out = [], L = lastYMD();
+    if (byYear()) {
+      years().forEach(function (y) {
+        out.push({ key: y, label: String(y), short: String(y),
+          recs: all.filter(function (r) { return r.y === y && C.inPeriod(r, y, S.period); }) });
+      });
+    } else {
+      monthsOf(S.period).forEach(function (m) {
+        if (S.year === L.y && m > L.m) return;
+        out.push({ key: m, label: C.MESI[m - 1], short: C.MESI_BREVI[m - 1],
+          recs: all.filter(function (r) { return r.y === S.year && r.m === m; }) });
+      });
+    }
+    return out;
+  }
+  function periodLabel() {
+    var P = S.period, p = P === 'all' ? '' : P === 'h1' ? '1° semestre' : P === 'h2' ? '2° semestre' : C.MESI[P - 1];
+    if (byYear()) { var ys = years(); return (p ? p + ', ' : '') + 'anni ' + ys[0] + '–' + ys[ys.length - 1]; }
+    return (p ? p + ' ' : 'anno ') + S.year;
+  }
+  function periodBounds() {
+    var first = S.data.meta.firstDay, last = S.data.meta.lastDay, a, b;
+    if (byYear()) { a = first; b = last; }
+    else {
+      var ms = monthsOf(S.period), em = ms[ms.length - 1];
+      a = C.ymdToDay(S.year, ms[0], 1);
+      b = C.ymdToDay(em === 12 ? S.year + 1 : S.year, em === 12 ? 1 : em + 1, 1) - 1;
+      a = Math.max(a, first); b = Math.min(b, last);
+    }
+    return [a, b];
+  }
+  function periodDays() {
+    if (byYear() && S.period !== 'all') return null;
+    var p = periodBounds();
+    return p[1] >= p[0] ? p[1] - p[0] + 1 : null;
+  }
+  function prevComparable() {
+    if (byYear()) return null;
+    var Y = S.year, L = lastYMD(), ms = monthsOf(S.period), cut = null;
+    if (Y === L.y) cut = C.ymdToDay(Y - 1, L.m, L.d);
+    var recs = S.data.ps.filter(function (r) { return r.y === Y - 1 && ms.indexOf(r.m) >= 0 && (cut == null || r.day <= cut); });
+    return recs.length ? { year: Y - 1, recs: recs, partial: cut != null } : null;
+  }
+
+  /* ---------- grafici ---------- */
+  function codColor(c) { return css('--c-' + String(c).toLowerCase()); }
+  function slot(i) { return css('--s' + ((i % 8) + 1)); }
+  function fasciaColor(f) { return slot(C.FASCE.indexOf(f)); }
+  function yearColor(y) { return slot(Math.max(0, years().indexOf(y))); }
+  var FONT = '"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif';
+  function applyChartTheme() {
+    if (!window.Chart) return;
+    Chart.defaults.font.family = FONT;
+    Chart.defaults.font.size = 13;
+    Chart.defaults.color = css('--ink2');
+    Chart.defaults.borderColor = css('--grid');
+  }
+  var centerText = {
+    id: 'centerText',
+    afterDraw: function (ch, args, o) {
+      if (!o || !o.text) return;
+      var a = ch.chartArea, ctx = ch.ctx, x = (a.left + a.right) / 2, y = (a.top + a.bottom) / 2;
+      ctx.save(); ctx.textAlign = 'center';
+      ctx.fillStyle = css('--ink'); ctx.font = '700 28px "Barlow Semi Condensed",' + FONT;
+      ctx.fillText(o.text, x, y + 6);
+      ctx.fillStyle = css('--muted'); ctx.font = '500 13px ' + FONT;
+      ctx.fillText(o.sub || '', x, y + 26);
+      ctx.restore();
+    }
+  };
+  function opts(o) {
+    o = o || {};
+    var horiz = !!o.horizontal, stacked = !!o.stacked;
+    var val = { beginAtZero: true, stacked: stacked, grid: { color: css('--grid'), drawTicks: false },
+      border: { display: false }, ticks: { color: css('--muted'), padding: 6, precision: 0 } };
+    if (o.max != null) val.max = o.max;
+    if (o.tickFmt) val.ticks.callback = o.tickFmt;
+    var cat = { stacked: stacked, grid: { display: false }, border: { color: css('--axis') },
+      ticks: { color: css('--muted'), padding: 6, autoSkip: !!o.autoSkip, maxRotation: 0 } };
+    if (o.autoSkip) cat.ticks.maxTicksLimit = 12;
+    var cfg = {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+      interaction: { mode: o.mode || 'index', intersect: false, axis: horiz ? 'y' : 'x' },
+      plugins: {
+        legend: { display: o.legend !== false, position: 'top', align: 'start',
+          labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'rectRounded', padding: 14, color: css('--ink2') } },
+        tooltip: { backgroundColor: css('--card'), titleColor: css('--ink'), bodyColor: css('--ink2'), footerColor: css('--ink'),
+          borderColor: css('--axis'), borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true,
+          titleFont: { weight: '700' }, callbacks: o.tooltip || {} }
+      },
+      scales: horiz ? { x: val, y: cat } : { x: cat, y: val }
+    };
+    if (horiz) cfg.indexAxis = 'y';
+    if (o.footer) cfg.plugins.tooltip.callbacks.footer = o.footer;
+    return cfg;
+  }
+  function totFooter(items) { return 'Totale: ' + n(sum(items.map(function (i) { return i.raw || 0; }))); }
+  function bar(label, data, color, extra) {
+    var d = { type: 'bar', label: label, data: data, backgroundColor: color, borderRadius: 4, borderSkipped: 'start',
+      maxBarThickness: 40, categoryPercentage: 0.78, barPercentage: 0.9 };
+    for (var k in extra) d[k] = extra[k];
+    return d;
+  }
+  function sbar(label, data, color) {
+    return { type: 'bar', label: label, data: data, backgroundColor: color, borderColor: css('--card'), borderWidth: 1,
+      borderRadius: 2, maxBarThickness: 44, categoryPercentage: 0.8, barPercentage: 0.9 };
+  }
+  function line(label, data, color, extra) {
+    var d = { type: 'line', label: label, data: data, borderColor: color, backgroundColor: color, borderWidth: 2,
+      pointRadius: 3, pointHoverRadius: 5, pointBorderColor: css('--card'), pointBorderWidth: 2,
+      cubicInterpolationMode: 'monotone', spanGaps: false };
+    for (var k in extra) d[k] = extra[k];
+    return d;
+  }
+  function doughnut(id, labels, data, colors, center, sub) {
+    var cv = $(id), wide = cv && cv.parentNode.clientWidth > 460 && !labels.some(function (l) { return l.length > 18; });
+    mk(id, { type: 'doughnut', data: { labels: labels, datasets: [{ data: data, backgroundColor: colors,
+      borderColor: css('--card'), borderWidth: 2, hoverOffset: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '66%', animation: { duration: 300 },
+        plugins: {
+          legend: { position: wide ? 'right' : 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'rectRounded', padding: 12, color: css('--ink2'),
+            generateLabels: function (ch) {
+              var ds = ch.data.datasets[0], tot = sum(ds.data);
+              return ch.data.labels.map(function (l, i) {
+                return { text: l + '  ' + pct(ds.data[i], tot), fillStyle: ds.backgroundColor[i], strokeStyle: ds.backgroundColor[i], fontColor: css('--ink2'),
+                  pointStyle: 'rectRounded', hidden: !ch.getDataVisibility(i), index: i };
+              });
+            } } },
+          tooltip: { backgroundColor: css('--card'), titleColor: css('--ink'), bodyColor: css('--ink2'), borderColor: css('--axis'), borderWidth: 1, padding: 10,
+            callbacks: { label: function (x) { return ' ' + x.label + ': ' + n(x.raw) + ' (' + pct(x.raw, sum(x.dataset.data)) + ')'; } } },
+          centerText: { text: center, sub: sub }
+        } },
+      plugins: [centerText] });
+  }
+  function mk(id, cfg) {
+    if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+    var el = $(id);
+    if (!el || !window.Chart) return;
+    charts[id] = new Chart(el, cfg);
+  }
+  function destroyCharts(view) {
+    Object.keys(charts).forEach(function (k) {
+      var el = document.getElementById(k);
+      if (!el || view.contains(el)) { charts[k].destroy(); delete charts[k]; }
+    });
+  }
+
+  /* ---------- mattoni HTML ---------- */
+  var seq = 0;
+  function uid(p) { return (p || 'x') + (++seq); }
+  function panel(title, sub, body) {
+    return '<div class="panel"><div class="ph"><div><h3>' + esc(title) + '</h3>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div></div>' + body + '</div>';
+  }
+  function chartBox(id, h) { return '<div class="chart ' + (h || '') + '"><canvas id="' + id + '" role="img"></canvas></div>'; }
+  function tableBlock(id, html, name, label, open) {
+    return '<details class="tbl"' + (open ? ' open' : '') + '><summary>' + esc(label || 'Mostra la tabella') +
+      '<button class="csv" data-csv="' + id + '" data-name="' + esc(name) + '" title="Scarica la tabella in CSV (si apre in Excel)">Scarica CSV</button></summary>' + html + '</details>';
+  }
+  function spark(vals, color) {
+    var v = vals.filter(function (x) { return x != null; });
+    if (v.length < 2) return '';
+    var max = Math.max.apply(null, v), min = Math.min.apply(null, v), w = 120, h = 30, pad = 3;
+    var pts = v.map(function (x, i) {
+      return [(i / (v.length - 1)) * (w - 2 * pad) + pad, h - pad - (max === min ? (h - 2 * pad) / 2 : (x - min) / (max - min) * (h - 2 * pad))];
+    });
+    var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var last = pts[pts.length - 1];
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><path d="' + d +
+      '" fill="none" stroke="' + (color || 'var(--s1)') + '" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>' +
+      '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.6" fill="' + (color || 'var(--s1)') + '"/></svg>';
+  }
+  function kpi(label, value, sub, o) {
+    o = o || {};
+    return '<div class="kpi"><div class="l">' + (o.sw ? '<span class="sw" style="background:' + o.sw + '"></span>' : '') + esc(label) +
+      '</div><div class="v">' + value + '</div><div class="s">' + (sub || '') + '</div>' + (o.spark || '') + '</div>';
+  }
+  function delta(cur, prev, label) {
+    if (!prev) return '';
+    var d = (cur - prev) / prev * 100;
+    return '<span class="' + (d >= 0 ? 'up' : 'down') + '">' + (d >= 0 ? '+' : '−') + NF1.format(Math.abs(d)) + '%</span> rispetto al ' + esc(label);
+  }
+  function heatBg(v, max, minShare) {
+    if (!v || !max || (minShare && v / max < minShare)) return '';
+    var lvl = Math.max(1, Math.min(6, Math.ceil(v / max * 6)));
+    var dark = css('--page').toLowerCase() !== '#eef2f6';
+    var fg = dark ? (lvl >= 5 ? 'color:#06121e' : '') : (lvl >= 4 ? 'color:#fff' : '');
+    return ' class="heat" style="background:var(--h' + lvl + ');' + fg + '"';
+  }
+  function emptyMsg(msg) { return '<div class="panel empty-v">' + esc(msg) + '</div>'; }
+  function subTitle(t, s) { return '<h3 style="margin:0 0 2px;font-size:15px">' + esc(t) + '</h3><div style="color:var(--muted);font-size:13px;margin-bottom:8px">' + s + '</div>'; }
+
+  /* =================================================================
+     SEZIONI
+     ================================================================= */
+
+  /* ----- Panoramica ----- */
+  function vPanoramica(el) {
+    var recs = sel(), c = C.counts(recs), prev = prevComparable(), pc = prev ? C.counts(prev.recs) : null;
+    var days = periodDays(), cost = C.costi(recs), u = U(recs);
+    var bs = buckets(S.data.ps), bc = bs.map(function (b) { return C.counts(b.recs); });
+    var prevLbl = prev ? (prev.partial ? 'stesso periodo del ' : '') + prev.year : '';
+    function sp(fn, col) { return spark(bc.map(fn), col); }
+
+    // frasi automatiche
+    var ins = [];
+    if (bs.length > 1) {
+      var best = 0; bc.forEach(function (x, i) { if (x.total > bc[best].total) best = i; });
+      ins.push([byYear() ? 'Anno più intenso' : 'Mese più intenso', bs[best].label + ', ' + n(bc[best].total) + ' uscite']);
+    }
+    var bf = C.byFascia(recs), fMax = C.FASCE[0];
+    C.FASCE.forEach(function (f) { if (bf[f].length > bf[fMax].length) fMax = f; });
+    ins.push(['Fascia più impegnata', C.FASCE_LABEL[fMax] + ', ' + pct(bf[fMax].length, c.total)]);
+    if (!(byYear() && S.period !== 'all')) {
+      var pb = periodBounds(), dCount = [0, 0, 0, 0, 0, 0, 0], dDays = [0, 0, 0, 0, 0, 0, 0];
+      for (var d = pb[0]; d <= pb[1]; d++) dDays[dow(d)]++;
+      u.forEach(function (r) { dCount[dow(r.day)]++; });
+      var dAvg = dCount.map(function (x, i) { return dDays[i] ? x / dDays[i] : 0; });
+      var dBest = dAvg.indexOf(Math.max.apply(null, dAvg));
+      ins.push(['Giorno più impegnativo', GIORNI[dBest] + ', ' + NF1.format(dAvg[dBest]) + ' uscite in media']);
+    }
+    var meds = C.tally(u, function (r) { return r.med; });
+    if (meds.length) ins.push(['Medico con più uscite', meds[0][0] + ', ' + n(meds[0][1]) + ' uscite']);
+
+    var h = '<div class="kpis">' +
+      kpi('Uscite', n(c.total), pc ? delta(c.total, pc.total, prevLbl) : 'nelle quattro fasce', { spark: sp(function (x) { return x.total; }) }) +
+      kpi('Media al giorno', days ? NF1.format(c.total / days) : '—', days ? 'su ' + n(days) + ' giorni con dati' : 'scegli tutti i mesi',
+        { spark: byYear() ? '' : spark(bs.map(function (b, i) {
+          var a0 = Math.max(S.data.meta.firstDay, C.ymdToDay(S.year, b.key, 1)), b0 = Math.min(S.data.meta.lastDay, C.ymdToDay(b.key === 12 ? S.year + 1 : S.year, b.key === 12 ? 1 : b.key + 1, 1) - 1);
+          return b0 >= a0 ? bc[i].total / (b0 - a0 + 1) : null; }), 'var(--s4)') }) +
+      kpi('Rosse + Blu', n(c.rb), pct(c.rb, c.total) + ' delle uscite', { sw: codColor('ROSSO'), spark: sp(function (x) { return x.rb; }, 'var(--c-rosso)') }) +
+      kpi('Medicalizzate', n(c.med), pct(c.med, c.total) + ' delle uscite', { spark: sp(function (x) { return x.med; }, 'var(--s3)') }) +
+      kpi('R/B senza medico', n(c.rbNoMed), pct(c.rbNoMed, c.rb) + ' delle Rosse/Blu', { spark: sp(function (x) { return x.rbNoMed; }, 'var(--s2)') }) +
+      kpi('Addebiti', eur(cost.tot), n(cost.no) + ' non assistiti, ' + n(cost.si) + ' ticket', { spark: spark(bs.map(function (b) { return C.costi(b.recs).tot; }), 'var(--s7)') }) +
+      '</div>';
+    h += '<div class="insights">' + ins.map(function (x) { return '<div class="ins">' + esc(x[0]) + '<b>' + esc(x[1]) + '</b></div>'; }).join('') + '</div>';
+    h += '<div class="row c21">' +
+      panel('Uscite ' + (byYear() ? 'anno per anno' : 'mese per mese'),
+        byYear() ? 'Totale viaggi nelle quattro fasce' : 'Barre: ' + S.year + (prev ? ', linea grigia: ' + prev.year : '') + ', tratteggio: media dei mesi', chartBox('chMonthly', 'h360')) +
+      panel('Codice di invio', 'Quota di ogni codice sulle uscite', chartBox('chCod', 'h360')) + '</div>';
+    h += '<div class="row c2">' +
+      panel('Fasce orarie', 'Uscite per fascia, divise per codice di invio', chartBox('chFasce')) +
+      panel('Esito del soccorso', 'Codice di rientro di ogni paziente', chartBox('chRientro')) + '</div>';
+    el.innerHTML = h;
+
+    var labels = bs.map(function (b) { return b.short; });
+    var tot = bc.map(function (x) { return x.total; });
+    var avg = tot.length ? sum(tot) / tot.length : 0;
+    var ds = [bar('Uscite ' + (byYear() ? '' : S.year), tot, slot(0))];
+    if (!byYear()) {
+      var py = S.year - 1, prevAll = S.data.ps.filter(function (r) { return r.y === py; });
+      if (prevAll.length) ds.push(line('Uscite ' + py, bs.map(function (b) {
+        return C.counts(prevAll.filter(function (r) { return r.m === b.key; })).total;
+      }), css('--muted'), { order: -1 }));
+    }
+    if (tot.length > 1) ds.push(line('Media ' + NF1.format(avg), tot.map(function () { return +avg.toFixed(1); }), css('--axis'),
+      { borderDash: [6, 5], pointRadius: 0, pointHoverRadius: 0, borderWidth: 1.5, order: -2 }));
+    mk('chMonthly', { type: 'bar', data: { labels: labels, datasets: ds }, options: opts() });
+
+    var codVals = C.CODICI.map(function (cd) { return u.filter(function (r) { return r.cod === cd; }).length; });
+    doughnut('chCod', C.CODICI.map(cap0), codVals, C.CODICI.map(codColor), n(sum(codVals)), 'uscite con codice');
+
+    mk('chFasce', { type: 'bar', data: { labels: C.FASCE.map(function (f) { return C.FASCE_LABEL[f]; }), datasets: C.CODICI.map(function (cd) {
+      return sbar(cap0(cd), C.FASCE.map(function (f) { return bf[f].filter(function (r) { return r.cod === cd; }).length; }), codColor(cd));
+    }) }, options: opts({ stacked: true, footer: totFooter }) });
+
+    var rt = C.RIENTRI.map(function (r) { return [r[1], recs.filter(function (x) { return x.rientro === r[0]; }).length]; })
+      .filter(function (x) { return x[1] > 0; }).sort(function (a, b) { return b[1] - a[1]; });
+    var totR = sum(rt.map(function (x) { return x[1]; }));
+    mk('chRientro', { type: 'bar', data: { labels: rt.map(function (x) { return x[0]; }),
+      datasets: [bar('Pazienti', rt.map(function (x) { return x[1]; }), slot(0), { maxBarThickness: 22 })] },
+      options: opts({ horizontal: true, legend: false, tooltip: { label: function (x) { return ' ' + n(x.raw) + ' pazienti (' + pct(x.raw, totR) + ')'; } } }) });
+  }
+
+  /* ----- Andamento ----- */
+  function vAndamento(el) {
+    var ys = years(), L = lastYMD(), ms = monthsOf(S.period);
+    var calYear = byYear() ? L.y : S.year;
+    var h = '<div class="row c21">' +
+      panel('Confronto tra anni', 'Uscite mese per mese, una linea per anno' + ' (il ' + L.y + ' arriva al ' + C.dayToIT(S.data.meta.lastDay) + ')', chartBox('chYears', 'h360') + '%%TAB%%') +
+      panel('Totale per anno', 'Passa sopra una barra per la media giornaliera', chartBox('chYearTot', 'h360')) + '</div>';
+
+    var tid = uid('t'), colT = ys.map(function () { return 0; });
+    var t = '<div class="tw"><table class="t" id="' + tid + '"><thead><tr><th>Mese</th>' + ys.map(function (y) { return '<th>' + y + '</th>'; }).join('') + '</tr></thead><tbody>';
+    ms.forEach(function (m) {
+      t += '<tr><td>' + C.MESI[m - 1] + '</td>' + ys.map(function (y, i) {
+        if (y === L.y && m > L.m) return '<td class="z">—</td>';
+        var v = C.counts(S.data.ps.filter(function (r) { return r.y === y && r.m === m; })).total; colT[i] += v; return tdn(v);
+      }).join('') + '</tr>';
+    });
+    t += '</tbody><tfoot><tr><td>Totale</td>' + colT.map(function (v) { return '<td>' + n(v) + '</td>'; }).join('') + '</tr></tfoot></table></div>';
+    h = h.replace('%%TAB%%', tableBlock(tid, t, 'confronto-anni', 'Mostra la tabella mesi × anni'));
+    h += '<div class="row">' + panel('Calendario ' + calYear, 'Ogni quadratino è un giorno: più è scuro, più uscite. Passa sopra per il numero.', '<div id="cal"></div>') + '</div>';
+    h += '<div class="row">' + panel('Uscite giorno per giorno, ' + calYear, 'Linea chiara: uscite del giorno. Linea scura: media degli ultimi 7 giorni.', chartBox('chDaily', 'h220')) + '</div>';
+    h += '<div class="row c2">' +
+      panel('Giorni della settimana', 'Uscite medie per giorno, divise per fascia · ' + esc(periodLabel()), chartBox('chDow')) +
+      panel('Giorno e fascia', 'Uscite totali nel periodo: più è scuro, più uscite', '<div id="dowHeat"></div>') + '</div>';
+    el.innerHTML = h;
+
+    mk('chYears', { type: 'line', data: { labels: ms.map(function (m) { return C.MESI_BREVI[m - 1]; }), datasets: ys.map(function (y) {
+      return line(String(y), ms.map(function (m) {
+        if (y === L.y && m > L.m) return null;
+        return C.counts(S.data.ps.filter(function (r) { return r.y === y && r.m === m; })).total;
+      }), yearColor(y), y === L.y ? { borderWidth: 3, pointRadius: 4 } : { borderWidth: 1.6 });
+    }) }, options: opts() });
+
+    var first = S.data.meta.firstDay, last = S.data.meta.lastDay;
+    var yt = ys.map(function (y) { return C.counts(S.data.ps.filter(function (r) { return r.y === y; })).total; });
+    var yd = ys.map(function (y) { var a = Math.max(first, C.ymdToDay(y, 1, 1)), b = Math.min(last, C.ymdToDay(y, 12, 31)); return b - a + 1; });
+    mk('chYearTot', { type: 'bar', data: { labels: ys.map(function (y) { return y === L.y ? y + ' (in corso)' : String(y); }),
+      datasets: [bar('Uscite', yt, ys.map(yearColor))] },
+      options: opts({ legend: false, tooltip: { label: function (x) { return ' ' + n(x.raw) + ' uscite, ' + NF1.format(x.raw / yd[x.dataIndex]) + ' al giorno'; } } }) });
+
+    // calendario
+    var per = {};
+    U(S.data.ps).forEach(function (r) { if (r.y === calYear) per[r.day] = (per[r.day] || 0) + 1; });
+    var start = C.ymdToDay(calYear, 1, 1), yEnd = C.ymdToDay(calYear, 12, 31), end = Math.min(yEnd, last);
+    var vals = []; for (var dd = start; dd <= end; dd++) vals.push(per[dd] || 0);
+    var sorted = vals.slice().sort(function (a, b) { return a - b; });
+    function q(p) { return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))] : 0; }
+    var th = [q(0.15), q(0.35), q(0.55), q(0.75), q(0.92)];
+    function lvl(v) { if (!v) return 0; for (var i = 0; i < th.length; i++) if (v <= th[i]) return i + 1; return 6; }
+    var cells = '', week = 0, lastMonth = 0;
+    for (var d = start - dow(start); d <= yEnd + (6 - dow(yEnd)); d++) {
+      var wd = dow(d);
+      if (wd === 0) {
+        week++;
+        var md = C.dayToYMD(Math.max(d, start)), label = '';
+        if (md.y === calYear && md.m !== lastMonth) { label = C.MESI_BREVI[md.m - 1]; lastMonth = md.m; }
+        cells += '<span class="ml" style="grid-column:' + week + '">' + label + '</span>';
+      }
+      var inYear = d >= start && d <= yEnd, v = per[d] || 0, future = d > end;
+      var bg = !inYear ? 'transparent' : future ? 'transparent;box-shadow:inset 0 0 0 1px var(--grid)' : 'var(--h' + lvl(v) + ')';
+      var tipTxt = inYear ? GIORNI[wd] + ' ' + C.dayToIT(d) + (future ? ': ancora nessun dato' : ': ' + n(v) + ' uscite') : '';
+      cells += '<span class="d" style="grid-column:' + week + ';grid-row:' + (wd + 2) + ';background:' + bg + '"' + (tipTxt ? ' data-tip="' + esc(tipTxt) + '"' : '') + '></span>';
+    }
+    var maxV = sorted.length ? sorted[sorted.length - 1] : 0, maxDay = start + vals.indexOf(maxV);
+    $('cal').innerHTML = '<div class="calwrap"><div class="calwd"><span></span>' + GG.map(function (g, i) { return '<span>' + (i % 2 === 0 ? g : '') + '</span>'; }).join('') +
+      '</div><div class="cal"><div class="calg">' + cells + '</div></div></div>' +
+      '<div class="scale">Meno <i style="background:var(--h0)"></i>' + [1, 2, 3, 4, 5, 6].map(function (i) { return '<i style="background:var(--h' + i + ')"></i>'; }).join('') +
+      ' Più <span style="margin-left:14px">Giorno con più uscite: <b>' + C.dayToIT(maxDay) + '</b> (' + n(maxV) + ') · media ' + NF1.format(vals.length ? sum(vals) / vals.length : 0) + ' al giorno</span></div>';
+
+    // uscite giornaliere con media mobile
+    var dl = [], dv = [], ma = [];
+    for (var x = start; x <= end; x++) {
+      dl.push(C.dayToIT(x).slice(0, 5)); dv.push(per[x] || 0);
+      var w = dv.slice(Math.max(0, dv.length - 7)); ma.push(+(sum(w) / w.length).toFixed(2));
+    }
+    mk('chDaily', { type: 'line', data: { labels: dl, datasets: [
+      line('Uscite del giorno', dv, css('--h2'), { pointRadius: 0, borderWidth: 1, cubicInterpolationMode: 'default', tension: 0 }),
+      line('Media 7 giorni', ma, slot(0), { pointRadius: 0, borderWidth: 2.4 })
+    ] }, options: opts({ autoSkip: true, tooltip: { label: function (x) { return ' ' + x.dataset.label + ': ' + (x.datasetIndex ? NF1.format(x.raw) : n(x.raw)); } } }) });
+
+    // giorni della settimana × fascia (periodo filtrato)
+    var pb = periodBounds(), recs = U(sel()), M = GIORNI.map(function () { return [0, 0, 0, 0]; }), nd = [0, 0, 0, 0, 0, 0, 0];
+    for (var y2 = pb[0]; y2 <= pb[1]; y2++) nd[dow(y2)]++;
+    recs.forEach(function (r) { M[dow(r.day)][C.FASCE.indexOf(r.fascia)]++; });
+    mk('chDow', { type: 'bar', data: { labels: GG, datasets: C.FASCE.map(function (f, i) {
+      return sbar(f, M.map(function (row, k) { return nd[k] ? +(row[i] / nd[k]).toFixed(2) : 0; }), fasciaColor(f));
+    }) }, options: opts({ stacked: true, tooltip: { label: function (x) { return ' ' + x.dataset.label + ': ' + NF1.format(x.raw) + ' al giorno'; } },
+      footer: function (items) { return 'Totale: ' + NF1.format(sum(items.map(function (i) { return i.raw; }))) + ' al giorno'; } }) });
+    var mx = Math.max.apply(null, [].concat.apply([], M));
+    $('dowHeat').innerHTML = '<div class="tw" style="margin-top:0"><table class="t"><thead><tr><th>Giorno</th>' + C.FASCE.map(function (f) { return '<th>' + f + '</th>'; }).join('') +
+      '<th>Totale</th><th>Al giorno</th></tr></thead><tbody>' +
+      M.map(function (row, k) {
+        return '<tr><td>' + GIORNI[k] + '</td>' + row.map(function (v) { return '<td' + heatBg(v, mx) + '>' + n(v) + '</td>'; }).join('') +
+          '<td><b>' + n(sum(row)) + '</b></td><td>' + (nd[k] ? NF1.format(sum(row) / nd[k]) : '—') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  /* ----- Conteggi mensili ----- */
+  function countsTable(id, recs, medList) {
+    var bf = C.byFascia(recs), tot = C.counts(recs);
+    var h = '<div class="tw"><table class="t" id="' + id + '"><thead><tr><th>Fascia</th><th>Totale</th><th>Rosso</th><th>Blu</th><th>Rosse + Blu</th><th>Medicalizzate</th><th>R/B senza medico</th>' +
+      medList.map(function (m) { return '<th class="v">' + esc(m) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    C.FASCE.forEach(function (f) {
+      var c = C.counts(bf[f]);
+      h += '<tr><td>' + esc(C.FASCE_LABEL[f]) + '</td><td><b>' + n(c.total) + '</b></td>' + tdn(c.rosso) + tdn(c.blu) + tdn(c.rb) + tdn(c.med) +
+        (c.rbNoMed ? '<td class="neg">' + n(c.rbNoMed) + '</td>' : '<td class="z">0</td>') +
+        medList.map(function (m) { return tdn(c.medici[m] || 0); }).join('') + '</tr>';
+    });
+    h += '</tbody><tfoot><tr><td>Totale</td><td>' + n(tot.total) + '</td><td>' + n(tot.rosso) + '</td><td>' + n(tot.blu) + '</td><td>' + n(tot.rb) +
+      '</td><td>' + n(tot.med) + '</td><td>' + n(tot.rbNoMed) + '</td>' + medList.map(function (m) { return '<td>' + n(tot.medici[m] || 0) + '</td>'; }).join('') +
+      '</tr></tfoot></table></div>';
+    return h;
+  }
+  function vConteggi(el) {
+    var bs = buckets(S.data.ps), crBs = buckets(S.data.cr);
+    if (!bs.length) { el.innerHTML = emptyMsg('Nessun dato nel periodo scelto.'); return; }
+    var keys = bs.map(function (b) { return b.key; });
+    if (keys.indexOf(S.month) < 0) S.month = keys[keys.length - 1];
+    var idx = keys.indexOf(S.month), B = bs[idx], c = C.counts(B.recs);
+    var crs = C.crsCitta(crBs[idx] ? crBs[idx].recs : []).length;
+    var medList = C.tally(U(B.recs), function (r) { return r.med; }).map(function (x) { return x[0]; });
+    var title = B.label + (byYear() ? '' : ' ' + S.year);
+
+    var sid = uid('t'), T = { f: [0, 0, 0, 0], tot: 0, crs: 0, rb: 0, med: 0 }, fmax = 0;
+    var rows = bs.map(function (b, i) {
+      var bf = C.byFascia(b.recs), cc = C.counts(b.recs), cr = C.crsCitta(crBs[i] ? crBs[i].recs : []).length;
+      C.FASCE.forEach(function (f) { fmax = Math.max(fmax, bf[f].length); });
+      return { b: b, bf: bf, c: cc, crs: cr };
+    });
+    var rs = '<div class="tw"><table class="t" id="' + sid + '"><thead><tr><th>' + cap(unitLbl()) + '</th>' +
+      C.FASCE.map(function (f) { return '<th>' + f + '</th>'; }).join('') + '<th>Totale ISS</th><th>CRS Città</th><th>Con CRS</th><th>R+B</th><th>Medicaliz.</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      rs += '<tr' + (r.b.key === S.month ? ' class="hl"' : '') + '><td>' + esc(r.b.label) + '</td>' + C.FASCE.map(function (f, k) {
+        var v = r.bf[f].length; T.f[k] += v; return '<td' + heatBg(v, fmax) + '>' + n(v) + '</td>';
+      }).join('') + '<td><b>' + n(r.c.total) + '</b></td>' + tdn(r.crs) + '<td><b>' + n(r.c.total + r.crs) + '</b></td>' + tdn(r.c.rb) + tdn(r.c.med) + '</tr>';
+      T.tot += r.c.total; T.crs += r.crs; T.rb += r.c.rb; T.med += r.c.med;
+    });
+    rs += '</tbody><tfoot><tr><td>Totale</td>' + T.f.map(function (v) { return '<td>' + n(v) + '</td>'; }).join('') +
+      '<td>' + n(T.tot) + '</td><td>' + n(T.crs) + '</td><td>' + n(T.tot + T.crs) + '</td><td>' + n(T.rb) + '</td><td>' + n(T.med) + '</td></tr></tfoot></table></div>';
+    var days = periodDays();
+    if (days) rs += '<div class="note">Media uscite giornaliere: <b>' + NF1.format(T.tot / days) + '</b> (' + n(T.tot) + ' uscite in ' + n(days) + ' giorni)' +
+      (T.crs ? ', con CRS Città <b>' + NF1.format((T.tot + T.crs) / days) + '</b>' : '') + '.</div>';
+
+    var h = '<div class="row">' +
+      panel('Riepilogo ' + (byYear() ? 'per anno' : 'per mese'), 'Celle più scure = più uscite in quella fascia. La riga evidenziata è il ' + unitLbl() + ' aperto sotto. ' +
+        '<button class="csv" data-csv="' + sid + '" data-name="riepilogo-fasce" style="margin-left:6px">Scarica CSV</button>', rs) + '</div>';
+    h += '<div class="row">' + panel('Uscite per fascia', 'Ogni barra è un ' + unitLbl() + ', divisa per fascia oraria', chartBox('chCntFasce', 'h360')) + '</div>';
+
+    h += '<div class="panel"><div class="ph"><div><h3>Dettaglio di ' + esc(title) + '</h3><div class="sub">Scegli il ' + unitLbl() + ' da vedere: il numero piccolo è il totale viaggi</div></div></div>';
+    h += '<div class="pills" role="group">' + bs.map(function (b, i) {
+      return '<button data-month="' + b.key + '" aria-pressed="' + (b.key === S.month) + '">' + esc(b.short) + '<small>' + n(rows[i].c.total) + '</small></button>';
+    }).join('') + '</div>';
+    h += '<div class="kpis k5">' + kpi('Totale viaggi', n(c.total), crs ? 'con CRS Città: ' + n(c.total + crs) : 'nelle quattro fasce') +
+      kpi('Rosse + Blu', n(c.rb), n(c.rosso) + ' rosse, ' + n(c.blu) + ' blu', { sw: codColor('ROSSO') }) +
+      kpi('Medicalizzate', n(c.med), pct(c.med, c.total) + ' delle uscite') +
+      kpi('R/B senza medico', n(c.rbNoMed), pct(c.rbNoMed, c.rb) + ' delle Rosse/Blu') +
+      kpi('Reperibilità', n(c.rep), c.rep ? 'chiamate "Con REP", fuori dal totale' : 'nessuna chiamata') + '</div>';
+    h += '<div class="row c2" style="margin-bottom:0"><div>' + subTitle('Fasce e codici', 'Uscite per fascia, divise per codice di invio') + chartBox('chMonthCod') + '</div>' +
+      '<div>' + subTitle('Medici', 'Uscite di ogni medico, divise per fascia') + chartBox('chMonthMed') + '</div></div>';
+    var mid = uid('t');
+    h += tableBlock(mid, countsTable(mid, B.recs, medList), 'conteggi-' + B.label, 'Tabella di ' + title + ' (come nel foglio Excel)', true);
+    h += '</div>';
+    el.innerHTML = h;
+
+    mk('chCntFasce', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: C.FASCE.map(function (f) {
+      return sbar(f, rows.map(function (r) { return r.bf[f].length; }), fasciaColor(f));
+    }) }, options: opts({ stacked: true, footer: totFooter }) });
+    var bfM = C.byFascia(B.recs);
+    mk('chMonthCod', { type: 'bar', data: { labels: C.FASCE.map(function (f) { return C.FASCE_LABEL[f]; }), datasets: C.CODICI.map(function (cd) {
+      return sbar(cap0(cd), C.FASCE.map(function (f) { return bfM[f].filter(function (r) { return r.cod === cd; }).length; }), codColor(cd));
+    }) }, options: opts({ stacked: true, footer: totFooter }) });
+    var um = U(B.recs);
+    mk('chMonthMed', { type: 'bar', data: { labels: medList, datasets: C.FASCE.map(function (f) {
+      return sbar(f, medList.map(function (m) { return um.filter(function (r) { return r.fascia === f && r.med.indexOf(m) >= 0; }).length; }), fasciaColor(f));
+    }) }, options: opts({ stacked: true, horizontal: true, footer: totFooter }) });
+
+    el.querySelectorAll('[data-month]').forEach(function (b) {
+      b.onclick = function () { var k = b.getAttribute('data-month'); S.month = isNaN(+k) ? k : +k; render(); };
+    });
+  }
+
+  /* ----- Medici e Rosse/Blu ----- */
+  function rbStats(list) {
+    var rb = list.filter(isRB), med = rb.filter(function (r) { return r.med.length; }).length;
+    return { rb: rb.length, rosso: rb.filter(function (r) { return r.cod === 'ROSSO'; }).length, blu: rb.filter(function (r) { return r.cod === 'BLU'; }).length, med: med, no: rb.length - med };
+  }
+  function vMedici(el) {
+    var bs = buckets(S.data.ps), recs = U(sel()), c = C.counts(recs);
+    var meds = C.tally(recs, function (r) { return r.med; });
+    var bf = C.byFascia(recs), sS = rbStats(bf['S 18-00']), sN = rbStats(bf['N 00-6']);
+    var small = function (x) { return ' <span style="font-size:17px;color:var(--muted);font-weight:600">su ' + n(x) + '</span>'; };
+    var h = '<div class="kpis k4">' +
+      kpi('Uscite medicalizzate', n(c.med), pct(c.med, c.total) + ' di tutte le uscite') +
+      kpi('Rosse/Blu con medico', pct(c.rbMed, c.rb), n(c.rbMed) + ' su ' + n(c.rb) + ' Rosse/Blu', { sw: codColor('ROSSO') }) +
+      kpi('Sera 18–24, R/B con medico', n(sS.med) + small(sS.rb), n(sS.no) + ' senza medico (' + pct(sS.no, sS.rb) + ')') +
+      kpi('Notte 00–06, R/B con medico', n(sN.med) + small(sN.rb), n(sN.no) + ' senza medico (' + pct(sN.no, sN.rb) + ')') + '</div>';
+    if (!byYear()) h += '<div class="note" style="margin:-4px 0 16px">Per il conteggio serale e notturno "da luglio 2023 ad oggi" (ex Foglio1) scegli <b>Tutti</b> in alto.</div>';
+    h += '<div class="row c2">' +
+      panel('Uscite per medico', 'Divise per fascia oraria · ' + esc(periodLabel()), chartBox('chMed', 'h420') + '%%T1%%') +
+      panel('Rosse/Blu per fascia', 'Con e senza medico a bordo', chartBox('chRBF', 'h420') + '%%T2%%') + '</div>';
+    h += '<div class="row">' + panel('Rosse/Blu ' + unitLbl() + ' per ' + unitLbl(), 'La parte arancione sono le urgenze uscite senza medico', chartBox('chRBT')) + '</div>';
+
+    var id = uid('t');
+    var t = '<div class="tw"><table class="t" id="' + id + '"><thead><tr><th>Medico</th>' + bs.map(function (b) { return '<th>' + esc(b.short) + '</th>'; }).join('') +
+      '<th>Totale</th><th>Quota</th><th>di cui R/B</th>' + C.FASCE.map(function (f) { return '<th>' + f + '</th>'; }).join('') + '</tr></thead><tbody>';
+    meds.forEach(function (m) {
+      var name = m[0], mine = recs.filter(function (r) { return r.med.indexOf(name) >= 0; });
+      t += '<tr><td>' + esc(name) + '</td>' + bs.map(function (b) {
+        return tdn(U(b.recs).filter(function (r) { return r.med.indexOf(name) >= 0; }).length);
+      }).join('') + '<td><b>' + n(m[1]) + '</b></td><td>' + pct(m[1], c.med) + '</td>' + tdn(mine.filter(isRB).length) +
+        C.FASCE.map(function (f) { return tdn(mine.filter(function (r) { return r.fascia === f; }).length); }).join('') + '</tr>';
+    });
+    t += '</tbody><tfoot><tr><td>Uscite medicalizzate</td>' + bs.map(function (b) { return '<td>' + n(C.counts(b.recs).med) + '</td>'; }).join('') +
+      '<td>' + n(c.med) + '</td><td></td><td>' + n(c.rbMed) + '</td>' + C.FASCE.map(function (f) {
+        return '<td>' + n(recs.filter(function (r) { return r.fascia === f && r.med.length; }).length) + '</td>';
+      }).join('') + '</tr></tfoot></table></div><div class="note">Una riga con due medici (es. "Amelio/Procaccini") conta per entrambi; il totale delle uscite medicalizzate la conta una volta.</div>';
+
+    var id2 = uid('t'), TT = { rosso: 0, blu: 0, rb: 0, med: 0, no: 0 };
+    var t2 = '<div class="tw"><table class="t" id="' + id2 + '"><thead><tr><th>Fascia</th><th>Rosso</th><th>Blu</th><th>Rosse/Blu</th><th>Con medico</th><th>Quota</th><th>Senza medico</th></tr></thead><tbody>';
+    C.FASCE.forEach(function (f) {
+      var x = rbStats(bf[f]); for (var k in TT) TT[k] += x[k];
+      t2 += '<tr><td>' + C.FASCE_LABEL[f] + '</td>' + tdn(x.rosso) + tdn(x.blu) + '<td><b>' + n(x.rb) + '</b></td>' + tdn(x.med) + '<td>' + pct(x.med, x.rb) + '</td>' +
+        (x.no ? '<td class="neg">' + n(x.no) + '</td>' : '<td class="z">0</td>') + '</tr>';
+    });
+    t2 += '</tbody><tfoot><tr><td>Totale</td><td>' + n(TT.rosso) + '</td><td>' + n(TT.blu) + '</td><td>' + n(TT.rb) + '</td><td>' + n(TT.med) + '</td><td>' + pct(TT.med, TT.rb) + '</td><td>' + n(TT.no) + '</td></tr></tfoot></table></div>';
+
+    h = h.replace('%%T1%%', tableBlock(id, t, 'medici', 'Mostra la tabella per medico e per ' + unitLbl())).replace('%%T2%%', tableBlock(id2, t2, 'urgenze-rb', 'Mostra la tabella (ex Foglio1)'));
+    el.innerHTML = h;
+
+    mk('chMed', { type: 'bar', data: { labels: meds.map(function (m) { return m[0]; }), datasets: C.FASCE.map(function (f) {
+      return sbar(f, meds.map(function (m) { return recs.filter(function (r) { return r.fascia === f && r.med.indexOf(m[0]) >= 0; }).length; }), fasciaColor(f));
+    }) }, options: opts({ stacked: true, horizontal: true, footer: totFooter }) });
+    mk('chRBF', { type: 'bar', data: { labels: C.FASCE.map(function (f) { return C.FASCE_LABEL[f]; }), datasets: [
+      sbar('Con medico', C.FASCE.map(function (f) { return rbStats(bf[f]).med; }), slot(0)),
+      sbar('Senza medico', C.FASCE.map(function (f) { return rbStats(bf[f]).no; }), slot(1))
+    ] }, options: opts({ stacked: true, footer: totFooter }) });
+    mk('chRBT', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: [
+      sbar('Con medico', bs.map(function (b) { return C.counts(b.recs).rbMed; }), slot(0)),
+      sbar('Senza medico', bs.map(function (b) { return C.counts(b.recs).rbNoMed; }), slot(1))
+    ] }, options: opts({ stacked: true, footer: totFooter }) });
+  }
+
+  /* ----- Codici ed esiti ----- */
+  function vCodici(el) {
+    var recs = sel(), u = U(recs), mx = C.matrix(recs), bs = buckets(S.data.ps);
+    var h = '<div class="kpis k5">' + C.CODICI.map(function (cd) {
+      var v = u.filter(function (r) { return r.cod === cd; }).length;
+      return kpi(cap0(cd), n(v), pct(v, u.length) + ' delle uscite', { sw: codColor(cd),
+        spark: spark(bs.map(function (b) { return U(b.recs).filter(function (r) { return r.cod === cd; }).length; }), 'var(--c-' + cd.toLowerCase() + ')') });
+    }).join('') + '</div>';
+    h += '<div class="row c21">' + panel('Codici di invio ' + unitLbl() + ' per ' + unitLbl(), 'Uscite divise per codice', chartBox('chCodT', 'h360')) +
+      panel('Esito per codice', 'Come si è concluso il soccorso, in percentuale per ogni codice di invio', chartBox('chMx', 'h360')) + '</div>';
+
+    var cols = C.RIENTRI.filter(function (r) { return C.CODICI.some(function (c) { return mx[c][r[0]] > 0; }); });
+    var anyNone = C.CODICI.some(function (c) { return mx[c].none > 0; });
+    var allCols = cols.concat(anyNone ? [['none', 'Non indicato']] : []);
+    var id = uid('t'), colTot = {};
+    var t = '<div class="tw"><table class="t" id="' + id + '"><thead><tr><th>Codice di invio</th><th>Pazienti</th>' +
+      allCols.map(function (r) { return '<th>' + esc(r[1]) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    C.CODICI.forEach(function (cd) {
+      var row = mx[cd];
+      t += '<tr><td><span style="display:inline-flex;gap:7px;align-items:center"><i class="sw" style="background:' + codColor(cd) + '"></i>' + cap0(cd) + '</span></td><td><b>' + n(row.tot) + '</b></td>';
+      allCols.forEach(function (r) {
+        var v = row[r[0]] || 0; colTot[r[0]] = (colTot[r[0]] || 0) + v;
+        t += v ? '<td' + heatBg(v, row.tot * 0.7, 0.07) + ' data-tip="' + esc(pct(v, row.tot) + ' dei codici ' + cap0(cd)) + '">' + n(v) + '</td>' : '<td class="z">0</td>';
+      });
+      t += '</tr>';
+    });
+    t += '</tbody><tfoot><tr><td>Totale</td><td>' + n(sum(C.CODICI.map(function (cd) { return mx[cd].tot; }))) + '</td>' + allCols.map(function (r) { return '<td>' + n(colTot[r[0]] || 0) + '</td>'; }).join('') + '</tr></tfoot></table></div>';
+    h += '<div class="row">' + panel('Codice di invio e codice di rientro', 'Tutti i pazienti, compresi quelli aggiuntivi sulla stessa uscita. Celle più scure = esito più frequente per quel codice. ' +
+      '<button class="csv" data-csv="' + id + '" data-name="analisi-codici" style="margin-left:6px">Scarica CSV</button>', t) + '</div>';
+
+    var rcpSi = recs.filter(function (r) { return r.rcp === 'SI'; }).length, rcpNo = recs.filter(function (r) { return r.rcp === 'NO'; }).length;
+    var roscSi = recs.filter(function (r) { return r.rosc === 'SI'; }).length;
+    var dec = recs.filter(function (r) { return r.rientro === 'DECESSO'; }).length;
+    var flag = recs.filter(function (r) { return r.flagm === 'SI'; }).length;
+    var espos = recs.filter(function (r) { return r.esito === '+'; }).length, esneg = recs.filter(function (r) { return r.esito === '-'; }).length;
+    h += '<div class="row c12">' + panel('Arresti cardiaci', 'Dalle colonne RCP, ROSC, FlagM ed esito',
+      '<div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr));margin:0">' +
+      kpi('RCP eseguite', n(rcpSi), rcpNo ? n(rcpNo) + ' casi senza RCP' : '') +
+      kpi('ROSC', n(roscSi), rcpSi ? pct(roscSi, rcpSi) + ' delle RCP' : '') +
+      kpi('Decessi', n(dec), 'non trasportati') +
+      kpi('FlagM', n(flag), 'esito + ' + n(espos) + ', esito − ' + n(esneg)) + '</div>') +
+      panel('Rifiuti e trattati sul posto', cap(unitLbl()) + ' per ' + unitLbl(), chartBox('chRif')) + '</div>';
+    el.innerHTML = h;
+
+    mk('chCodT', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: C.CODICI.map(function (cd) {
+      return sbar(cap0(cd), bs.map(function (b) { return U(b.recs).filter(function (r) { return r.cod === cd; }).length; }), codColor(cd));
+    }) }, options: opts({ stacked: true, footer: totFooter }) });
+    var groups = [
+      ['Cod. 1', ['COD.1']], ['Cod. 2', ['COD.2']], ['Cod. 3', ['COD.3/B', 'COD.3/A']], ['Cod. 4', ['COD.4']],
+      ['Rifiuto', ['RIFIUTO', 'SUL_POSTO_RIF']], ['Sul posto', ['SUL_POSTO']], ['Decesso', ['DECESSO']], ['Altro', ['CENTRALIZZATO', 'ALTRO', 'none']]
+    ];
+    mk('chMx', { type: 'bar', data: { labels: C.CODICI.map(cap0), datasets: groups.map(function (g, i) {
+      var ds = sbar(g[0], C.CODICI.map(function (cd) {
+        var v = sum(g[1].map(function (k) { return mx[cd][k] || 0; }));
+        return mx[cd].tot ? +(v / mx[cd].tot * 100).toFixed(1) : 0;
+      }), g[0] === 'Altro' ? css('--muted') : slot(i));
+      ds.counts = C.CODICI.map(function (cd) { return sum(g[1].map(function (k) { return mx[cd][k] || 0; })); });
+      return ds;
+    }) }, options: opts({ stacked: true, horizontal: true, max: 100, tickFmt: function (v) { return v + '%'; },
+      tooltip: { label: function (x) { return ' ' + x.dataset.label + ': ' + n(x.dataset.counts[x.dataIndex]) + ' (' + NF1.format(x.raw) + '%)'; } } }) });
+    mk('chRif', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: [
+      bar('Rifiuto del trasporto', bs.map(function (b) { return b.recs.filter(function (r) { return r.rientro === 'RIFIUTO' || r.rientro === 'SUL_POSTO_RIF'; }).length; }), slot(0)),
+      bar('Trattato sul posto', bs.map(function (b) { return b.recs.filter(function (r) { return r.rientro === 'SUL_POSTO'; }).length; }), slot(2))
+    ] }, options: opts() });
+  }
+
+  /* ----- Personale e mezzi ----- */
+  function vPersonale(el) {
+    var u = U(sel()), tot = u.length, bs = buckets(S.data.ps);
+    function rowsFor(fn) {
+      return C.tally(u, fn).map(function (x) {
+        var mine = u.filter(function (r) { var v = fn(r); return Array.isArray(v) ? v.indexOf(x[0]) >= 0 : v === x[0]; });
+        return { name: x[0], tot: x[1], f: C.FASCE.map(function (f) { return mine.filter(function (r) { return r.fascia === f; }).length; }),
+          rb: mine.filter(isRB).length, med: mine.filter(function (r) { return r.med.length; }).length };
+      });
+    }
+    function tbl(id, rows) {
+      var max = rows.length ? rows[0].tot : 1;
+      return '<div class="tw"><table class="t" id="' + id + '"><thead><tr><th>Nome</th><th>Uscite</th><th style="width:20%"></th><th>Quota</th>' +
+        C.FASCE.map(function (f) { return '<th>' + f + '</th>'; }).join('') + '<th>Rosse/Blu</th><th>Con medico</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+          return '<tr><td>' + esc(r.name) + '</td><td><b>' + n(r.tot) + '</b></td><td><div class="bar-cell" style="width:' + Math.max(2, r.tot / max * 100).toFixed(1) + '%"></div></td><td>' + pct(r.tot, tot) + '</td>' +
+            r.f.map(tdn).join('') + tdn(r.rb) + tdn(r.med) + '</tr>';
+        }).join('') + '</tbody></table></div>';
+    }
+    var A = rowsFor(function (r) { return r.aut; }), I = rowsFor(function (r) { return r.inf; }),
+        M = rowsFor(function (r) { return r.amb; }), K = rowsFor(function (r) { return r.castello; });
+    var a = uid('t'), b = uid('t'), c = uid('t'), d = uid('t');
+    var top = I.slice(0, 20);
+    var h = '<div class="row c2">' +
+      panel('Autisti', 'Uscite di ogni autista, divise per fascia · ' + esc(periodLabel()), chartBox('chAut', 'h420') + tableBlock(a, tbl(a, A), 'autisti')) +
+      panel('Infermieri', (I.length > 20 ? 'I 20 con più uscite' : 'Uscite') + ', divise per fascia', chartBox('chInf', 'h420') + tableBlock(b, tbl(b, I), 'infermieri', 'Mostra la tabella completa (' + I.length + ' nomi)')) + '</div>';
+    h += '<div class="row c2">' +
+      panel('Ambulanze', 'Uscite di ogni mezzo, ' + unitLbl() + ' per ' + unitLbl(), chartBox('chAmb') + tableBlock(c, tbl(c, M), 'ambulanze')) +
+      panel('Castello dell\'evento', 'Dove si sono svolti i soccorsi', chartBox('chCast') + tableBlock(d, tbl(d, K), 'castelli')) + '</div>';
+    h += '<div class="note">Le righe con due nomi (es. "Mosca/Marchetti") contano per entrambi. I nomi sono uniformati, quindi "mini" e "Mini" sono la stessa persona.</div>';
+    el.innerHTML = h;
+
+    function stackedBy(id, rows) {
+      mk(id, { type: 'bar', data: { labels: rows.map(function (r) { return r.name; }), datasets: C.FASCE.map(function (f, i) {
+        return sbar(f, rows.map(function (r) { return r.f[i]; }), fasciaColor(f));
+      }) }, options: opts({ stacked: true, horizontal: true, footer: totFooter }) });
+    }
+    stackedBy('chAut', A); stackedBy('chInf', top);
+    var mainAmb = M.slice(0, 4).map(function (r) { return r.name; });
+    var ambDs = mainAmb.map(function (name, i) {
+      return sbar(name, bs.map(function (bk) { return U(bk.recs).filter(function (r) { return r.amb === name; }).length; }), slot(i));
+    });
+    if (M.length > 4) ambDs.push(sbar('Altri mezzi', bs.map(function (bk) { return U(bk.recs).filter(function (r) { return r.amb && mainAmb.indexOf(r.amb) < 0; }).length; }), css('--muted')));
+    mk('chAmb', { type: 'bar', data: { labels: bs.map(function (bk) { return bk.short; }), datasets: ambDs }, options: opts({ stacked: true, footer: totFooter }) });
+    mk('chCast', { type: 'bar', data: { labels: K.map(function (r) { return r.name; }), datasets: [bar('Uscite', K.map(function (r) { return r.tot; }), slot(0), { maxBarThickness: 20 })] },
+      options: opts({ horizontal: true, legend: false, tooltip: { label: function (x) { return ' ' + n(x.raw) + ' uscite (' + pct(x.raw, tot) + ')'; } } }) });
+  }
+
+  /* ----- Costi e assistiti ----- */
+  function vCosti(el) {
+    var recs = sel(), c = C.costi(recs), bs = buckets(S.data.ps), T = C.TARIFFE;
+    var h = '<div class="kpis k5">' + kpi('Totale addebiti', eur(c.tot), 'non assistiti + ticket') +
+      kpi('Non assistiti ISS', n(c.no), eur(c.q) + ', ' + eur(T.nonAssistito) + ' l\'uno', { sw: slot(0) }) +
+      kpi('Assistiti ISS', n(c.si), eur(c.r) + ' di ticket da ' + eur(T.ticket), { sw: slot(1) }) +
+      kpi('Convenzionati', n(c.conv), 'nessun addebito', { sw: slot(2) }) +
+      kpi('Reperibilità', n(c.rep), c.rep ? n(c.rep) + ' × ' + eur(T.reperibilita) + ' = ' + eur(c.repEuro) : 'nessuna chiamata "Con REP"') + '</div>';
+    h += '<div class="row c21">' + panel('Addebiti ' + unitLbl() + ' per ' + unitLbl(), 'Euro dei non assistiti e dei ticket', chartBox('chCost', 'h360') + '%%T1%%') +
+      panel('Chi era il paziente', 'Assistito ISS, non assistito o convenzionato', chartBox('chAss', 'h360')) + '</div>';
+    if (!byYear()) h += '<div class="row">' + panel('Addebiti progressivi', 'Totale accumulato da inizio anno, confrontato con l\'anno precedente', chartBox('chProg')) + '</div>';
+
+    var id = uid('t'), prog = 0, TT = { si: 0, no: 0, conv: 0, unk: 0, q: 0, r: 0, tot: 0 };
+    var t = '<div class="tw"><table class="t" id="' + id + '"><thead><tr><th>' + cap(unitLbl()) + '</th><th>Assistiti</th><th>Non assistiti</th><th>Convenzionati</th><th>Da verificare</th><th>€ non assistiti</th><th>€ ticket</th><th>Totale €</th><th>Progressivo €</th></tr></thead><tbody>';
+    bs.forEach(function (b) {
+      var x = C.costi(b.recs); prog += x.tot; for (var k in TT) TT[k] += x[k];
+      t += '<tr><td>' + esc(b.label) + '</td>' + tdn(x.si) + tdn(x.no) + tdn(x.conv) + tdn(x.unk) + tde(x.q) + tde(x.r) + '<td><b>' + eur(x.tot) + '</b></td><td>' + eur(prog) + '</td></tr>';
+    });
+    t += '</tbody><tfoot><tr><td>Totale</td><td>' + n(TT.si) + '</td><td>' + n(TT.no) + '</td><td>' + n(TT.conv) + '</td><td>' + n(TT.unk) + '</td><td>' + eur(TT.q) + '</td><td>' + eur(TT.r) + '</td><td>' + eur(TT.tot) + '</td><td></td></tr></tfoot></table></div>';
+
+    var sid = uid('t'), stTot = 0;
+    var st = '<div class="tw"><table class="t" id="' + sid + '"><thead><tr><th>Struttura</th>' + bs.map(function (b) { return '<th>' + esc(b.short) + '</th>'; }).join('') + '<th>Totale</th></tr></thead><tbody>';
+    C.STRUTTURE.forEach(function (nm) {
+      var tt = 0;
+      st += '<tr><td>' + esc(nm) + '</td>' + bs.map(function (b) { var v = b.recs.filter(function (r) { return r.strutt === nm; }).length; tt += v; return tdn(v); }).join('') + '<td><b>' + n(tt) + '</b></td></tr>';
+      stTot += tt;
+    });
+    st += '</tbody><tfoot><tr><td>Totale</td>' + bs.map(function (b) { return '<td>' + n(b.recs.filter(function (r) { return r.strutt; }).length) + '</td>'; }).join('') + '<td>' + n(stTot) + '</td></tr></tfoot></table></div>';
+
+    h = h.replace('%%T1%%', tableBlock(id, t, 'costi', 'Mostra la tabella con il progressivo'));
+    h += '<div class="row">' + panel('Strutture residenziali', n(stTot) + ' trasporti da Casale la Fiorina, Villa Oasi, Colore del Grano e Filo di Arianna',
+        chartBox('chStr') + tableBlock(sid, st, 'strutture')) + '</div>';
+    el.innerHTML = h;
+
+    mk('chCost', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: [
+      sbar('Non assistiti', bs.map(function (b) { return C.costi(b.recs).q; }), slot(0)),
+      sbar('Ticket', bs.map(function (b) { return C.costi(b.recs).r; }), slot(1))
+    ] }, options: opts({ stacked: true, tickFmt: function (v) { return eur(v); },
+      tooltip: { label: function (x) { return ' ' + x.dataset.label + ': ' + eur(x.raw); } },
+      footer: function (items) { return 'Totale: ' + eur(sum(items.map(function (i) { return i.raw; }))); } }) });
+    doughnut('chAss', ['Assistiti ISS', 'Non assistiti', 'Convenzionati', 'Da verificare'], [c.si, c.no, c.conv, c.unk + c.vuoto],
+      [slot(1), slot(0), slot(2), css('--muted')], n(c.si + c.no + c.conv + c.unk + c.vuoto), 'pazienti');
+    if (!byYear()) {
+      var L = lastYMD(), ms = range(1, 12).filter(function (m) { return !(S.year === L.y && m > L.m); });
+      var cum = function (y, months) { var acc = 0; return months.map(function (m) { acc += C.costi(S.data.ps.filter(function (r) { return r.y === y && r.m === m; })).tot; return acc; }); };
+      var cur = cum(S.year, ms);
+      var ds = [line(String(S.year), C.MESI_BREVI.map(function (x, i) { return i < cur.length ? cur[i] : null; }), slot(0), { borderWidth: 3 })];
+      if (years().indexOf(S.year - 1) >= 0) ds.push(line(String(S.year - 1), cum(S.year - 1, range(1, 12)), css('--muted')));
+      mk('chProg', { type: 'line', data: { labels: C.MESI_BREVI, datasets: ds }, options: opts({ tickFmt: function (v) { return eur(v); },
+        tooltip: { label: function (x) { return ' ' + x.dataset.label + ': ' + eur(x.raw); } } }) });
+    }
+    mk('chStr', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: C.STRUTTURE.map(function (nm, i) {
+      return sbar(nm, bs.map(function (b) { return b.recs.filter(function (r) { return r.strutt === nm; }).length; }), slot(i + 4));
+    }) }, options: opts({ stacked: true, footer: totFooter }) });
+  }
+
+  /* ----- Croce Rossa ----- */
+  function vCroce(el) {
+    if (!S.data.cr.length) { el.innerHTML = emptyMsg('Il foglio "Croce Rossa - Croci Private" non è presente nel file caricato.'); return; }
+    var cr = sel(S.data.cr), bs = buckets(S.data.cr);
+    var enti = C.tally(cr, function (r) { return r.ente; });
+    var crs = C.crsCitta(cr).length, imp = sum(cr.map(function (r) { return r.imp; })), cos = sum(cr.map(function (r) { return r.cos; }));
+    var iss = C.counts(sel()).total;
+    var h = '<div class="kpis k4">' + kpi('Trasporti CRS e croci private', n(cr.length), iss ? pct(cr.length, iss + cr.length) + ' di tutti i trasporti 118' : '') +
+      kpi('di cui CRS Città', n(crs), 'sommati al totale ISS nei conteggi') +
+      kpi('Importo non assistiti', eur(imp), n(cr.filter(function (r) { return r.assist === 'no'; }).length) + ' trasporti') +
+      kpi('Ticket assistiti', eur(cos), n(cr.filter(function (r) { return r.assist === 'si'; }).length) + ' trasporti') + '</div>';
+    h += '<div class="row c21">' + panel('Trasporti per ente, ' + unitLbl() + ' per ' + unitLbl(), esc(cap(periodLabel())), chartBox('chCr', 'h360') + '%%T1%%') +
+      panel('Chi ha fatto i trasporti', 'Quota di ogni ente', chartBox('chEnti', 'h360')) + '</div>';
+    var id = uid('t'), names = enti.map(function (e) { return e[0]; });
+    var t = '<div class="tw"><table class="t" id="' + id + '"><thead><tr><th>' + cap(unitLbl()) + '</th>' + names.map(function (e) { return '<th>' + esc(e) + '</th>'; }).join('') + '<th>Totale</th><th>€ totale</th></tr></thead><tbody>';
+    bs.forEach(function (b) {
+      t += '<tr><td>' + esc(b.label) + '</td>' + names.map(function (e) { return tdn(b.recs.filter(function (r) { return r.ente === e; }).length); }).join('') +
+        '<td><b>' + n(b.recs.length) + '</b></td>' + tde(sum(b.recs.map(function (r) { return r.imp + r.cos; }))) + '</tr>';
+    });
+    t += '</tbody><tfoot><tr><td>Totale</td>' + enti.map(function (e) { return '<td>' + n(e[1]) + '</td>'; }).join('') + '<td>' + n(cr.length) + '</td><td>' + eur(imp + cos) + '</td></tr></tfoot></table></div>';
+    var K = C.tally(cr, function (r) { return r.castello; });
+    h = h.replace('%%T1%%', tableBlock(id, t, 'croce-rossa', 'Mostra la tabella con gli importi'));
+    h += '<div class="row c2">' + panel('Castello dell\'evento', 'Dove sono intervenuti', chartBox('chCrCast')) +
+      panel('Fasce orarie', 'Trasporti per fascia indicata nel foglio Croce Rossa', chartBox('chCrF')) + '</div>';
+    el.innerHTML = h;
+
+    var main = names.slice(0, 6);
+    var ds = main.map(function (e, i) { return sbar(e, bs.map(function (b) { return b.recs.filter(function (r) { return r.ente === e; }).length; }), slot(i)); });
+    if (names.length > 6) ds.push(sbar('Altri', bs.map(function (b) { return b.recs.filter(function (r) { return main.indexOf(r.ente) < 0; }).length; }), css('--muted')));
+    mk('chCr', { type: 'bar', data: { labels: bs.map(function (b) { return b.short; }), datasets: ds }, options: opts({ stacked: true, footer: totFooter }) });
+    var dl = main.slice(), dv = main.map(function (e) { return enti[names.indexOf(e)][1]; }), dc = main.map(function (e, i) { return slot(i); });
+    if (names.length > 6) { dl.push('Altri'); dv.push(sum(enti.slice(6).map(function (e) { return e[1]; }))); dc.push(css('--muted')); }
+    doughnut('chEnti', dl, dv, dc, n(cr.length), 'trasporti');
+    mk('chCrCast', { type: 'bar', data: { labels: K.map(function (x) { return x[0]; }), datasets: [bar('Trasporti', K.map(function (x) { return x[1]; }), slot(0), { maxBarThickness: 20 })] },
+      options: opts({ horizontal: true, legend: false }) });
+    var ord = { N: 0, M: 1, P: 2, S: 3 };
+    var F = C.tally(cr, function (r) { return r.fascia; }).sort(function (x, y) { return ((ord[x[0][0]] != null ? ord[x[0][0]] : 9) - (ord[y[0][0]] != null ? ord[y[0][0]] : 9)) || x[0].localeCompare(y[0]); });
+    mk('chCrF', { type: 'bar', data: { labels: F.map(function (x) { return x[0]; }), datasets: [bar('Trasporti', F.map(function (x) { return x[1]; }), slot(1))] },
+      options: opts({ legend: false }) });
+  }
+
+  /* ----- Qualità dati ----- */
+  function vQualita(el) {
+    var iss = S.data.issues, ps = S.data.ps;
+    var todo = [], firstCod = Infinity;
+    ps.forEach(function (r) { if (r.cod && r.day < firstCod) firstCod = r.day; });
+    ps.forEach(function (r) {
+      if (r.rcp === '?') todo.push([r.row, C.dayToIT(r.day), 'RCP da compilare', r.cod + ' · ' + r.rientroRaw]);
+      if (r.rosc === '?') todo.push([r.row, C.dayToIT(r.day), 'ROSC da compilare', r.cod + ' · ' + r.rientroRaw]);
+      if (r.assist === '?') todo.push([r.row, C.dayToIT(r.day), 'Assistito ISS indicato con "?"', '']);
+      if (!r.extra && r.fascia && r.fascia !== 'REP' && !r.cod && r.day >= firstCod) todo.push([r.row, C.dayToIT(r.day), 'Codice di invio mancante', r.fascia]);
+    });
+    var dateFix = iss.filter(function (i) { return /^Data/.test(i.type); }).length;
+    var h = '<div class="kpis k4">' + kpi('Date corrette', n(dateFix), 'scritte male, mancanti o con anno sbagliato') +
+      kpi('Formule costo mancanti', n(iss.filter(function (i) { return i.type === 'Formula costo mancante'; }).length), 'costo calcolato dalla dashboard') +
+      kpi('Fasce non standard', n(iss.filter(function (i) { return i.type === 'Fascia non standard'; }).length), 'es. "S 18-01" letta come "S 18-00"') +
+      kpi('Celle da completare', n(todo.length), 'codice, RCP/ROSC o assistito') + '</div>';
+    var L = function (s) { return '<th style="text-align:left">' + s + '</th>'; };
+    var id = uid('t');
+    var t = '<div class="tw" style="max-height:480px;overflow:auto"><table class="t" id="' + id + '"><thead><tr><th>Foglio</th><th>Riga</th>' + L('Problema') + L('Nel file') + L('Letto come') + '</tr></thead><tbody>';
+    iss.slice().sort(function (x, y) { return x.sheet.localeCompare(y.sheet) || x.row - y.row; }).forEach(function (i) {
+      t += '<tr><td>' + esc(i.sheet) + '</td><td>' + i.row + '</td><td style="text-align:left">' + esc(i.type) + '</td><td style="text-align:left">' + esc(i.raw) + '</td><td style="text-align:left">' + esc(i.fixed) + '</td></tr>';
+    });
+    if (!iss.length) t += '<tr><td colspan="5">Nessun problema trovato.</td></tr>';
+    t += '</tbody></table></div>';
+    var id2 = uid('t');
+    var t2 = '<div class="tw" style="max-height:480px;overflow:auto"><table class="t" id="' + id2 + '"><thead><tr><th>Riga</th>' + L('Data') + L('Da completare') + L('Dettaglio') + '</tr></thead><tbody>' +
+      todo.sort(function (a, b) { return b[0] - a[0]; }).map(function (x) { return '<tr><td>' + x[0] + '</td><td style="text-align:left">' + x[1] + '</td><td style="text-align:left">' + esc(x[2]) + '</td><td style="text-align:left">' + esc(x[3]) + '</td></tr>'; }).join('') +
+      (todo.length ? '' : '<tr><td colspan="4">Niente da completare.</td></tr>') + '</tbody></table></div>';
+    h += '<div class="row c2">' + panel('Correzioni applicate', 'Righe del file Excel da sistemare, con quello che la dashboard ha capito', tableBlock(id, t, 'qualita-dati', 'Mostra le ' + n(iss.length) + ' correzioni', true)) +
+      panel('Celle da completare', 'Nel foglio Pronto Soccorso, dalle più recenti', tableBlock(id2, t2, 'da-completare', 'Mostra le ' + n(todo.length) + ' celle', true)) + '</div>';
+    h += '<div class="row">' + panel('Come vengono letti i dati', '', '<div style="font-size:14.5px;color:var(--ink2);max-width:88ch">' +
+      '<p><b>Uscite.</b> Una riga con data e fascia è un\'uscita. Le righe senza data e senza fascia sono pazienti aggiuntivi della stessa uscita, come indicato nel foglio: contano come pazienti e negli esiti, non come viaggi.</p>' +
+      '<p><b>Date.</b> Ogni data viene confrontata con le righe vicine. Anni sbagliati (un 2025 in mezzo al 2026), date scritte come testo ("22/08/52025") o mancanti vengono ricostruite ed elencate qui sopra.</p>' +
+      '<p><b>Mesi.</b> Il foglio Excel conta solo il nome del mese; qui conta la data vera, quindi una riga con l\'anno sbagliato non finisce nel mese sbagliato.</p>' +
+      '<p><b>Fasce.</b> "S 18-01" o "M 6-13" diventano la fascia standard. "Con REP 19-20:30" è contata a parte come reperibilità.</p>' +
+      '<p><b>Costi.</b> Si usano i valori delle colonne "assistit. No / Si"; se nella riga manca la formula, il costo viene calcolato con ' + eur(C.TARIFFE.nonAssistito) + ' e ' + eur(C.TARIFFE.ticket) + '.</p>' +
+      '<p><b>CRS Città.</b> Raccoglie diciture come "CRS Città" e "118 - CRS /Città" del foglio Croce Rossa: è il numero che prima veniva sommato a mano al totale.</p></div>') + '</div>';
+    el.innerHTML = h;
+  }
+
+  var VIEWS = { panoramica: vPanoramica, andamento: vAndamento, conteggi: vConteggi, medici: vMedici, codici: vCodici,
+    personale: vPersonale, costi: vCosti, croce: vCroce, qualita: vQualita };
+
+  /* ---------- render ---------- */
+  function setHead() {
+    var m = META[S.tab];
+    $('vTitle').textContent = m[1];
+    $('vDesc').textContent = m[3] + ' · ' + cap(periodLabel());
+  }
+  function render() {
+    if (!S.data) return;
+    var el = $('v-' + S.tab);
+    setHead();
+    destroyCharts(el);
+    applyChartTheme();
+    try { VIEWS[S.tab](el); } catch (e) { console.error(e); el.innerHTML = emptyMsg('Errore nel calcolo di questa sezione: ' + e.message); }
+    S.dirty[S.tab] = false;
+  }
+  function invalidate() { Object.keys(VIEWS).forEach(function (k) { S.dirty[k] = true; }); render(); }
+  function setTab(t) {
+    S.tab = t; lsSet('t118_tab', t);
+    Object.keys(VIEWS).forEach(function (k) { $('v-' + k).classList.toggle('on', k === t); });
+    document.querySelectorAll('[data-tab]').forEach(function (b) {
+      if (b.getAttribute('data-tab') === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (S.dirty[t] !== false) render(); else setHead();
+    window.scrollTo(0, 0);
+  }
+  function buildMenu() {
+    var h = '', mb = '<button class="load" id="btnLoadM">Carica Excel</button>';
+    SECTIONS.forEach(function (g) {
+      h += '<div class="grp">' + g[0] + '</div>';
+      g[1].forEach(function (s) {
+        h += '<button data-tab="' + s[0] + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC[s[2]] + '</svg>' + s[1] + '</button>';
+        mb += '<button data-tab="' + s[0] + '">' + s[1] + '</button>';
+      });
+    });
+    $('menu').innerHTML = h; $('mobilebar').innerHTML = mb;
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-tab]'); if (b && S.data) setTab(b.getAttribute('data-tab'));
+    });
+    $('btnLoadM').onclick = function () { $('file').click(); };
+  }
+  function buildFilters() {
+    var ys = years(), L = lastYMD();
+    if (S.year == null || (S.year !== 'all' && ys.indexOf(S.year) < 0)) S.year = L.y;
+    $('years').innerHTML = ys.map(function (y) { return '<button data-year="' + y + '" aria-pressed="' + (S.year === y) + '">' + y + '</button>'; }).join('') +
+      '<button data-year="all" aria-pressed="' + (S.year === 'all') + '">Tutti</button>';
+    $('fPeriod').innerHTML = '<option value="all">' + (byYear() ? 'Tutti i mesi' : 'Tutto l\'anno') + '</option><option value="h1">1° semestre</option><option value="h2">2° semestre</option>' +
+      C.MESI.map(function (m, i) { return '<option value="' + (i + 1) + '">' + m + '</option>'; }).join('');
+    $('fPeriod').value = String(S.period);
+  }
+  function fileInfo() {
+    var m = S.data.meta, lo = new Date(m.loadedAt);
+    $('fileinfo').innerHTML = '<div class="status"><i></i>Dati al ' + C.dayToIT(m.lastDay) + '</div>' +
+      '<b>' + esc(m.file || 'file Excel') + '</b><br>caricato il ' + lo.toLocaleDateString('it-IT') + ' alle ' + lo.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) +
+      '<br>' + n(S.data.ps.length) + ' righe dal ' + C.dayToIT(m.firstDay);
+  }
+  function setData(data) {
+    S.data = data;
+    document.body.classList.remove('nodata');
+    buildFilters();
+    fileInfo();
+    cloudUI();
+    Object.keys(VIEWS).forEach(function (k) { S.dirty[k] = true; });
+    setTab(S.tab);
+  }
+
+  /* ---------- cloud Firebase (dati condivisi fra tutti i dispositivi) ---------- */
+  var FB_CONFIG = {
+    apiKey: 'AIzaSyBidWhuv1uWHKQ7Rib6BxcvK9sbG4QjA_4',
+    authDomain: 'risto-gest-pro-2026.firebaseapp.com',
+    databaseURL: 'https://risto-gest-pro-2026-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId: 'risto-gest-pro-2026',
+    storageBucket: 'risto-gest-pro-2026.firebasestorage.app',
+    messagingSenderId: '135116387205',
+    appId: '1:135116387205:web:729c51f3ff2c1dcd874aec',
+    measurementId: 'G-SP10P2SRRF'
+  };
+  var FB_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  var CL = { col: 'trasporti118', chunk: 700000, state: 'loading', msg: 'collegamento…', user: null, db: null, meta: null, unsub: null, busy: false };
+
+  function isEditor() { return !!(CL.db && CL.user); } // chiunque apra la pagina può pubblicare
+  function col() { return CL.db.collection(CL.col); }
+  function needsPublish() {
+    return isEditor() && S.data && (!CL.meta || (S.data.meta.cloudVersion !== CL.meta.version && S.data.meta.loadedAt > (CL.meta.loadedAt || '')));
+  }
+  function cloudUI() {
+    var el = $('cloud'); if (!el) return;
+    var cls = CL.state === 'ok' ? 'ok' : CL.state === 'err' ? 'err' : CL.state === 'warn' ? 'warn' : '';
+    var h = '<div class="status ' + cls + '"><i></i>Cloud: ' + esc(CL.msg) + '</div>';
+    if (CL.meta && CL.state !== 'err') {
+      var at = CL.meta.loadedAt ? new Date(CL.meta.loadedAt) : null;
+      h += 'Dati condivisi al <b>' + C.dayToIT(CL.meta.lastDay) + '</b>' + (at ? '<br>pubblicati il ' + at.toLocaleDateString('it-IT') + ' alle ' +
+        at.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '');
+    }
+    if (CL.state !== 'err' && needsPublish()) h += '<button class="sbtn pub" id="clPub">' + (CL.busy ? 'Pubblicazione…' : 'Pubblica questi dati per tutti') + '</button>';
+    el.innerHTML = h;
+    if (!S.data && $('libstatus')) $('libstatus').textContent = CL.meta && CL.state === 'loading' ? 'Scarico i dati condivisi dal cloud…' : (CL.state === 'err' ? 'Cloud: ' + CL.msg : '');
+    var b;
+    if ((b = $('clPub'))) b.onclick = function () { publish(S.data); };
+  }
+  function setCloud(state, msg) { CL.state = state; CL.msg = msg; cloudUI(); }
+
+  // compressione gzip + base64 (riduce ~2,5 MB a ~160 KB)
+  function b64(buf) {
+    var bytes = new Uint8Array(buf), s = '', step = 0x8000;
+    for (var i = 0; i < bytes.length; i += step) s += String.fromCharCode.apply(null, bytes.subarray(i, i + step));
+    return btoa(s);
+  }
+  function unb64(str) {
+    var bin = atob(str), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function encode(data) {
+    var json = JSON.stringify(data);
+    if (typeof CompressionStream === 'undefined') return Promise.resolve({ enc: 'json', s: json });
+    var stream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+    return new Response(stream).arrayBuffer().then(function (buf) { return { enc: 'gzip-b64', s: b64(buf) }; });
+  }
+  function decode(s, enc) {
+    if (enc === 'json') return Promise.resolve(JSON.parse(s));
+    if (typeof DecompressionStream === 'undefined') return Promise.reject(new Error('Browser troppo vecchio per leggere i dati del cloud'));
+    var stream = new Blob([unb64(s)]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Response(stream).text().then(JSON.parse);
+  }
+
+  function download(m) {
+    var gets = range(0, m.chunks - 1).map(function (i) { return col().doc('c_' + m.version + '_' + i).get(); });
+    return Promise.all(gets).then(function (docs) {
+      var s = docs.map(function (d) { if (!d.exists) throw new Error('Pezzo di dati mancante sul cloud'); return d.data().d; }).join('');
+      return decode(s, m.enc);
+    });
+  }
+  function onMeta(snap) {
+    if (!snap.exists) { CL.meta = null; setCloud('ok', 'collegato, nessun dato pubblicato'); return; }
+    var m = snap.data(); CL.meta = m;
+    var local = S.data && S.data.meta;
+    if (local && local.cloudVersion === m.version) { setCloud('ok', 'sincronizzato'); return; }
+    if (local && !local.cloudVersion && (local.loadedAt || '') > (m.loadedAt || '')) { setCloud('warn', 'sul dispositivo hai dati più recenti'); return; }
+    setCloud('loading', 'scarico i dati aggiornati…');
+    download(m).then(function (d) {
+      d.meta.cloudVersion = m.version;
+      var first = !S.data;
+      setData(d);
+      DB.set('data', d).catch(function () {});
+      setCloud('ok', 'sincronizzato');
+      if (!first) toast('Dati aggiornati dal cloud: ultimo trasporto ' + C.dayToIT(d.meta.lastDay), 5000);
+    }).catch(function (e) { console.error(e); setCloud('err', 'errore nel download (' + (e.code || e.message) + ')'); });
+  }
+  function publish(data) {
+    if (!isEditor()) { toast('Il cloud non è raggiungibile: i dati restano su questo dispositivo', 5000); return Promise.resolve(false); }
+    if (CL.busy) return Promise.resolve(false);
+    CL.busy = true; setCloud('loading', 'pubblicazione in corso…');
+    var old = CL.meta, version = Date.now().toString(36);
+    return encode(data).then(function (p) {
+      var parts = [];
+      for (var i = 0; i < p.s.length; i += CL.chunk) parts.push(p.s.slice(i, i + CL.chunk));
+      var batch = CL.db.batch();
+      parts.forEach(function (s, i) { batch.set(col().doc('c_' + version + '_' + i), { v: version, i: i, d: s }); });
+      var meta = { version: version, chunks: parts.length, enc: p.enc, size: p.s.length,
+        file: data.meta.file || '', loadedAt: data.meta.loadedAt, firstDay: data.meta.firstDay, lastDay: data.meta.lastDay,
+        rows: data.ps.length, at: firebase.firestore.FieldValue.serverTimestamp() };
+      data.meta.cloudVersion = version;
+      batch.set(col().doc('meta'), meta);
+      return batch.commit().then(function () {
+        DB.set('data', data).catch(function () {});
+        if (old && old.version && old.version !== version) {
+          var del = CL.db.batch();
+          for (var j = 0; j < (old.chunks || 0); j++) del.delete(col().doc('c_' + old.version + '_' + j));
+          del.commit().catch(function () {});
+        }
+        CL.busy = false; setCloud('ok', 'sincronizzato');
+        toast('Dati pubblicati: ora tutti vedono i trasporti fino al ' + C.dayToIT(data.meta.lastDay), 5000);
+        return true;
+      });
+    }).catch(function (e) {
+      console.error(e); CL.busy = false; delete data.meta.cloudVersion;
+      setCloud('err', e.code === 'permission-denied' ? 'permessi Firestore mancanti per pubblicare' : 'pubblicazione non riuscita (' + (e.code || e.message) + ')');
+      toast('Pubblicazione non riuscita: i dati restano su questo dispositivo', 6000);
+      return false;
+    });
+  }
+  function cloudInit() {
+    loadScript([FB_SDK + 'firebase-app-compat.js'])
+      .then(function () { return loadScript([FB_SDK + 'firebase-auth-compat.js']); })
+      .then(function () { return loadScript([FB_SDK + 'firebase-firestore-compat.js']); })
+      .then(function () {
+        if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+        CL.db = firebase.firestore();
+        var auth = firebase.auth();
+        auth.onAuthStateChanged(function (u) {
+          CL.user = u;
+          if (!u) {
+            auth.signInAnonymously().catch(function (e) { setCloud('err', e.code === 'auth/operation-not-allowed' || e.code === 'auth/admin-restricted-operation' ? 'accesso anonimo non attivo in Firebase (Authentication)' : 'accesso non riuscito (' + e.code + ')'); });
+            return;
+          }
+          cloudUI();
+          if (!CL.unsub) CL.unsub = col().doc('meta').onSnapshot(onMeta, function (e) {
+            CL.unsub = null;
+            setCloud('err', e.code === 'permission-denied' ? 'permessi Firestore mancanti' : 'errore (' + (e.code || e.message) + ')');
+          });
+        });
+      })
+      .catch(function () { setCloud('err', 'non raggiungibile, uso i dati di questo dispositivo'); });
+  }
+
+  /* ---------- caricamento file ---------- */
+  function handleFile(f) {
+    if (!f) return;
+    if (!/\.xls[xm]?$/i.test(f.name)) { toast('Scegli un file Excel (.xlsx)'); return; }
+    busy(true, 'Lettura di ' + f.name + '…');
+    xlsxReady.then(tick).then(function () { return f.arrayBuffer(); }).then(function (buf) {
+      var wb = XLSX.read(new Uint8Array(buf), { type: 'array', cellFormula: false, cellHTML: false, cellText: false, cellStyles: false });
+      busy(true, 'Calcolo dei conteggi…');
+      return tick().then(function () { return C.parseWorkbook(XLSX, wb, f.name); });
+    }).then(function (data) {
+      var prevLast = S.data ? S.data.meta.lastDay : null;
+      setData(data);
+      DB.set('data', data).catch(function () { toast('Dati caricati, ma il browser non ha permesso di salvarli'); });
+      var msg = 'Dati aggiornati al ' + C.dayToIT(data.meta.lastDay);
+      if (prevLast && data.meta.lastDay > prevLast) msg += ': ' + n(data.ps.filter(function (r) { return r.day > prevLast; }).length) + ' righe nuove';
+      if (isEditor()) { toast(msg + '. Pubblicazione sul cloud…', 4000); publish(data); }
+      else { toast(msg + '. Il cloud non è raggiungibile: per ora restano solo su questo dispositivo.', 6000); cloudUI(); }
+    }).catch(function (e) {
+      console.error(e);
+      toast(e && /Libreria/.test(e.message) ? 'Serve la connessione a internet per leggere il file la prima volta' : 'Il file non si legge: ' + (e && e.message || e), 6000);
+    }).then(function () { busy(false); $('file').value = ''; });
+  }
+  function exportCSV(tableId, name) {
+    var t = $(tableId); if (!t) return;
+    var rows = Array.prototype.map.call(t.querySelectorAll('tr'), function (tr) {
+      return Array.prototype.map.call(tr.children, function (c) {
+        var v = c.textContent.replace(/\s+/g, ' ').trim();
+        return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }).join(';');
+    });
+    var blob = new Blob(['﻿' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (name || 'tabella').replace(/[^\w\-àèéìòù ]+/gi, '').replace(/\s+/g, '-').toLowerCase() + '-' + (byYear() ? 'tutti' : S.year) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+  }
+  function setTheme(t) {
+    if (t) document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+    if (S.data) invalidate();
+  }
+
+  /* ---------- avvio ---------- */
+  function init() {
+    buildMenu();
+    var th = lsGet('t118_theme'); if (th) setTheme(th);
+    var tb = lsGet('t118_tab'); if (tb && VIEWS[tb]) S.tab = tb;
+    $('btnLoad').onclick = $('btnLoad2').onclick = function () { $('file').click(); };
+    $('file').onchange = function () { handleFile(this.files[0]); };
+    $('btnPrint').onclick = function () { window.print(); };
+    $('btnTheme').onclick = function () {
+      var cur = document.documentElement.getAttribute('data-theme') ||
+        (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      var nx = cur === 'dark' ? 'light' : 'dark'; lsSet('t118_theme', nx); setTheme(nx);
+    };
+    $('btnClear').onclick = function () {
+      if (!S.data) { toast('Non ci sono dati salvati'); return; }
+      if (!confirm('Cancellare i dati salvati in questo browser? Il file Excel non viene toccato.')) return;
+      DB.del('data').catch(function () {}).then(function () { location.reload(); });
+    };
+    $('years').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-year]'); if (!b) return;
+      var v = b.getAttribute('data-year'); S.year = v === 'all' ? 'all' : +v; S.month = null;
+      buildFilters(); invalidate();
+    });
+    $('fPeriod').onchange = function () { S.period = /^\d+$/.test(this.value) ? +this.value : this.value; S.month = null; invalidate(); };
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-csv]');
+      if (b) { e.preventDefault(); e.stopPropagation(); exportCSV(b.getAttribute('data-csv'), b.getAttribute('data-name')); }
+    }, true);
+    var tip = $('tip');
+    document.addEventListener('mouseover', function (e) {
+      var t = e.target.closest && e.target.closest('[data-tip]');
+      if (!t) { tip.style.display = 'none'; return; }
+      tip.textContent = t.getAttribute('data-tip'); tip.style.display = 'block';
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (tip.style.display !== 'block') return;
+      var x = e.clientX + 14, y = e.clientY + 14, w = tip.offsetWidth;
+      if (x + w > window.innerWidth - 8) x = e.clientX - w - 14;
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    });
+    if (window.matchMedia) {
+      var mq = matchMedia('(prefers-color-scheme: dark)');
+      if (mq.addEventListener) mq.addEventListener('change', function () { if (!document.documentElement.getAttribute('data-theme') && S.data) invalidate(); });
+    }
+    var depth = 0;
+    window.addEventListener('dragenter', function (e) { e.preventDefault(); depth++; document.body.classList.add('dragging'); $('drop').classList.add('over'); });
+    window.addEventListener('dragleave', function () { if (--depth <= 0) { depth = 0; document.body.classList.remove('dragging'); $('drop').classList.remove('over'); } });
+    window.addEventListener('dragover', function (e) { e.preventDefault(); });
+    window.addEventListener('drop', function (e) {
+      e.preventDefault(); depth = 0; document.body.classList.remove('dragging'); $('drop').classList.remove('over');
+      if (e.dataTransfer && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+    chartReady.then(function () { if (S.data) invalidate(); }).catch(function () { $('libstatus').textContent = 'Non riesco a caricare la libreria dei grafici: controlla la connessione a internet.'; });
+    xlsxReady.catch(function () { $('libstatus').textContent = 'Non riesco a caricare la libreria per leggere Excel: controlla la connessione a internet.'; });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (S.data && window.Chart) invalidate(); });
+    // prima i dati salvati sul dispositivo, poi il cloud (che li aggiorna se è più recente)
+    var started = false, startCloud = function () { if (!started) { started = true; cloudInit(); } };
+    setTimeout(startCloud, 2500); // se il salvataggio locale non risponde, parte comunque il cloud
+    DB.get('data').then(function (d) { if (d && d.ps && d.ps.length && !S.data) setData(d); }).catch(function () {}).then(startCloud);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+</script>
+</body>
+</html>
